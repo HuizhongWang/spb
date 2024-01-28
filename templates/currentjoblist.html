@@ -2,11 +2,12 @@
 
 {% block title %}{{currentjobs}}{% endblock %}
 
+{% block content %}
+
 <h2>Curent Job List</h2>
 
 <!-- code to display list of jobs-->
-
-<table class="table">
+<table class="table" table-bordered>
     <caption>Current Jobs</caption>
     <thead>
         <tr>
@@ -24,17 +25,15 @@
         </tr>
     </thead>
     <tbody>
-        
+        {% for job in job_list %}
+        <tr>
+            {% for field in job %}
+                <td>{{field}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
     </tbody>
 </table>
 
-<!--{% for job in job_list %}
-    <tr>
-        {% for field in job %}
-        <td>{{field}}</td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table> -->
 
-<!-- {% endblock %} -->
+{% endblock %}
