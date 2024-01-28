@@ -5,15 +5,23 @@
   <meta charset="utf-8" />
   <title>{% block title %}{% endblock %}</title>
   <!-- Bootstrap CSS link -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="stylesheet" href="static/plugins/bootstrap-3.3.7/css/bootstrap.css">
+  <link rel="stylesheet" href="static/plugins/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.css">
 </head>
 
 <body>
   <nav>
     <h1>Selwyn Panel Beaters</h1>
-    <ul>
-      <li><a href="{{ url_for('home') }}">Current Jobs</a></li>
+    <ul class="nav nav-pills">
+      <li role="presentation" class="active"><a href="{{ url_for('home') }}">Home</a></li>
+      <li role="presentation" class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+          aria-haspopup="true" aria-expanded="false"> Choose your role <span class="caret"></span> </a>
+        <ul class="dropdown-menu">
+          <li><a href="#">Technician</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#">Administrator</a></li>
+        </ul>
+      </li>
     </ul>
   </nav>
 
@@ -30,9 +38,8 @@
   </section>
 
   <!-- Bootstrap's JavaScript bundle including Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-    crossorigin="anonymous"></script>
+  <script src="static/js/jquery-3.7.1.min.js"></script> 
+  <script src="static/plugins/bootstrap-3.3.7/js/bootstrap.js"></script>
 
   <script>
     // Example starter JavaScript for disabling form submissions if there are invalid fields
@@ -40,11 +47,11 @@
       'use strict'
 
       // Fetch all the forms we want to apply custom Bootstrap validation styles to
-      // 获取文档中class=.needs-validation的所有数据
+      // 获取文档中class=.needs-validation的所有数据，返回的是 NodeList
       const forms = document.querySelectorAll('.needs-validation')
 
       // Loop over them and prevent submission
-      Array.from(forms).forEach(form => {
+      Array.from(forms).forEach(form => {                  // 用Array.from方法，将类数组对象或可迭代对象转换为一个真正的数组。
         form.addEventListener('submit', event => {
           if (!form.checkValidity()) {
             event.preventDefault()

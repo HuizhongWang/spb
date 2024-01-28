@@ -4,32 +4,27 @@
 
 {% block content %}
 
-<h2>Curent Job List</h2>
+<h3>Curent Job List</h2>
 
 <!-- code to display list of jobs-->
 <table class="table" table-bordered>
-    <caption>Current Jobs</caption>
     <thead>
         <tr>
             <th>Job ID</th>
             <th>Customer ID</th>
-            <th>Customer Name</th>
+            <th>First Name</th>
+            <th>Family Name</th>
             <th>Date</th>
-            <th>Job Service</th>
-            <th>Service qty</th>
-            <th>Service price</th>
-            <th>Job Part</th>
-            <th>Part qty</th>
-            <th>Part price</th>
-            <th>Total price</th>
         </tr>
     </thead>
     <tbody>
         {% for job in job_list %}
         <tr>
-            {% for field in job %}
-                <td>{{field}}</td>
-            {% endfor %}
+            <td><a href="{{ url_for('addjobs') }}" name="job_item">{{job[0]}}</a></td>          
+            <td>{{job[1]}}</td>
+            <td>{{job[2]}}</td>
+            <td>{{job[3]}}</td>
+            <td>{{job[4]}}</td>
         </tr>
         {% endfor %}
     </tbody>
