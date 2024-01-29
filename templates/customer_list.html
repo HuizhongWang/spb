@@ -1,1 +1,33 @@
 {% extends "base.html" %}
+
+{% block title %}{{customerlist}}{% endblock %}
+
+{% block content %}
+<h3>Customer List</h2>
+    <!--Customer search-->
+    <form class="navbar-form navbar-right">
+        <div class="form-group"><input class="form-control" placeholder="first name or surname"> </div> 
+        <button type="submit"class="btn btn-primary">Submit</button>
+    </form>
+    <!-- code to display list of customers-->
+    <table class="table" table-bordered>
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>First name</th>
+                <th>Family Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customer_list %}
+            <tr>
+                {% for field in customer %}
+                <th>{{field}}</th>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endblock %}

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}{{currentjobs}}{% endblock %}
+{% block title %}{{currentjoblist}}{% endblock %}
 
 {% block content %}
 
-<h3>Curent Job List</h2>
+<h3>Curent Job List</h3>
 
 <!-- code to display list of jobs-->
 <table class="table" table-bordered>
@@ -20,7 +20,7 @@
     <tbody>
         {% for job in job_list %}
         <tr>
-            <td><a href="{{ url_for('addjobs') }}" name="job_item">{{job[0]}}</a></td>          
+            <td><a href="{{ url_for('addjobs',job_id=job[0])}}">{{job[0]}}</a></td>          
             <td>{{job[1]}}</td>
             <td>{{job[2]}}</td>
             <td>{{job[3]}}</td>

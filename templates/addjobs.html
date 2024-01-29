@@ -1,26 +1,35 @@
 {% extends "base.html" %}
 
-{% block title %}{{currentjobs}}{% endblock %}
+{% block title %}{{addjobs}}{% endblock %}
 
 {% block content %}
 
 <h3>Add Jobs</h2>
+    <button type="button" class="btn btn-primary btn-sm">Edit</button>
+    <button type="button" class="btn btn-success btn-sm">Complete</button>
     <table class="table" table-bordered>
         <thead>
             <tr>
                 <th>Job ID</th>
                 <th>Customer ID</th>
-                <th>First Name</th>
-                <th>Family Name</th>
                 <th>Date</th>
+                <th>job service</th>
+                <th>qty</th>
+                <th>price</th>
+                <th>job part</th>
+                <th>qty</th>
+                <th>price</th>    
+                <th>edit</th>            		
             </tr>
         </thead>
         <tbody>
-            
+            {% for job in job_detail_list %}
             <tr>
-                <th>job_item</th>
+                {% for field in job%}
+                <th>{{field}}</th>
+                {% endfor %}           
             </tr>
-          
+            {% endfor %}
         </tbody>
     </table>    
 

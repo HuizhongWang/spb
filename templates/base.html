@@ -40,6 +40,16 @@
   <!-- Bootstrap's JavaScript bundle including Popper -->
   <script src="static/js/jquery-3.7.1.min.js"></script> 
   <script src="static/plugins/bootstrap-3.3.7/js/bootstrap.js"></script>
+  <script src="static/plugins/vitalets-bootstrap-datepicker-c7af15b/js/bootstrap-datepicker.js"></script>
+  <script>
+      $(function(){ //datepicker
+          $("#dt").datepicker({
+              format:"yyyy-mm-dd",
+              startDate:"0",
+              autoclose: true
+          });
+      });
+  </script>
 
   <script>
     // Example starter JavaScript for disabling form submissions if there are invalid fields

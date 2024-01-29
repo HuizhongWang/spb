@@ -1,1 +1,32 @@
 {% extends "base.html" %}
+
+{% block title %}{{unpaidbills}}{% endblock %}
+
+{% block content %}
+
+<h3>Unpaid bills & Pay Bills</h3>
+
+<!-- code to display list of unpaidbills-->
+<table class="table" table-bordered>
+    <thead>
+        <tr>
+            <th>Job ID</th>
+            <th>Customer ID</th>
+            <th>First Name</th>
+            <th>Family Name</th>
+            <th>Date</th>
+            <th>Mark as paid</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bills in unpaidbills %}
+        <tr>
+            {% for field in bills %}
+            <th>{{field}}</th>
+            {% endfor %}
+            <th><button type="paid" class="btn btn-primary">Paid</button></th>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
