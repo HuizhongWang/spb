@@ -17,12 +17,11 @@
       <li role="presentation" class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
           aria-haspopup="true" aria-expanded="false"> Choose your role <span class="caret"></span> </a>
         <ul class="dropdown-menu">
-          <li><a href="#">Technician</a></li>
+          <li><a href="{{ url_for('home') }}">Technician</a></li>
           <li role="separator" class="divider"></li>
-          <li><a href="#">Administrator</a></li>
+          <li><a href="{{ url_for('admin') }}">Administrator</a></li>
         </ul>
       </li>
-    </ul>
   </nav>
 
   <section class="content">
@@ -73,6 +72,7 @@
       })
     })()
   </script>
+
 </body>
 
 </html>

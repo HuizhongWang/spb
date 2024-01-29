@@ -5,32 +5,55 @@
 {% block content %}
 
 <h3>Add Jobs</h2>
-    <button type="button" class="btn btn-primary btn-sm">Edit</button>
-    <button type="button" class="btn btn-success btn-sm">Complete</button>
-    <table class="table" table-bordered>
-        <thead>
-            <tr>
-                <th>Job ID</th>
-                <th>Customer ID</th>
-                <th>Date</th>
-                <th>job service</th>
-                <th>qty</th>
-                <th>price</th>
-                <th>job part</th>
-                <th>qty</th>
-                <th>price</th>    
-                <th>edit</th>            		
-            </tr>
-        </thead>
-        <tbody>
-            {% for job in job_detail_list %}
-            <tr>
-                {% for field in job%}
-                <th>{{field}}</th>
-                {% endfor %}           
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>    
+<button type="button" class="btn btn-primary btn-sm" onclick="add()">Add</button>
+<button type="button" class="btn btn-success btn-sm">Mark as completed</button>
+<table class="table" table-bordered>
+    <thead>
+        <tr>
+            <th>Job ID</th>
+            <th>Customer ID</th>
+            <th>Date</th>
+            <th>job service</th>
+            <th>qty</th>
+            <th>price</th>
+            <th>job part</th>
+            <th>qty</th>
+            <th>price</th>              		
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in job_detail_list %}
+        <tr>
+            {% for field in job%}
+            <th>{{field}}</th>
+            {% endfor %}           
+        </tr>
+        {% endfor %}
 
+    </tbody>
+</table>    
+
+<script>
+    // $(document).ready(function() {
+    //     // 当点击“添加行”按钮时，执行以下代码
+    //     $("#add").click(function() {
+    //         // 创建一个新的行
+    //         var newRow = $("<tr></tr>");
+    //         // 添加行中的列
+    //         newRow.append("<td>新商品</td>");
+    //         newRow.append("<td>300</td>");
+    //         // 将新行添加到表格中的最后一行
+    //         $(".table tbody").append(newRow);
+    //     });
+    // });
+    var obj=$('#add');
+    //插入数据到第一行
+    obj.bootstrapTable('insertRow', {
+            index: 2,
+            row: {
+            Id: 100,
+            catalog: 'new car' 
+            }
+    });
+</script>
 {% endblock %}
