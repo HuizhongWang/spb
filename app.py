@@ -50,7 +50,8 @@ def currentjobs():
 @app.route("/addjobs",methods = ["GET","POST"])    # technician add jobs
 def addjobs():
     connection = getCursor()
-    job_id = request.args.get('job_id') # get job_id
+    # get job_id
+    job_id = request.args.get('job_id') 
   
     connection.execute("""select j.job_id,j.customer,j.job_date from job j
         left join job_service js on j.job_id=js.job_id
@@ -58,12 +59,41 @@ def addjobs():
         where j.job_id= %s;""", (job_id,) )        
   
     job_detail_list = connection.fetchall() 
-    return render_template("addjobs.html",job_detail_list=job_detail_list)    
+
+    # get service name 
+    connection.execute("select * from service")
+    service_list = connection.fetchall() 
+
+    # get part name
+    connection.execute("select * from part")
+    part_list = connection.fetchall() 
+    
+    # get input imformation
+    if request.method == 'POST':
+        service = request.form.get('service_name') 
+        service_qty = request.form.get('service_qty') 
+        part = request.form.get('part_name') 
+        part_qty = request.form.get('part_qty') 
+ 
+        if type(service_qty)==int and service_qty!=0:
+            connection.execute("select service_id from service where %s = service_name",(service,))
+            service_id = connection.fetchone() 
+            connection.execute("insert into job_service value (%s,%s,%s)",(job_id,service_id,service_qty,))
+            connection.commit()
+            print(service_id)
+        elif type(part_qty)==int and part_qty!=0:
+            connection.execute("select part_id from part where %s = service_name",(part,))
+            part_id = connection.fetchone() 
+            connection.execute("insert into job_part value (%s,%s,%s)",(job_id,part_id,part_qty,))
+            connection.commit() 
+        # else:   
+        #     get_flashed_messages = "Qty must be an integer."
+
+    return render_template("addjobs.html",job_detail_list=job_detail_list,service_list=service_list,part_list=part_list)    
 
 @app.route("/admin",methods = ["GET","POST"]) 
 def admin():
     return render_template("admin.html")    
-
 
 @app.route("/customerlist",methods = ["GET","POST"]) 
 def customerlist():
@@ -74,9 +104,10 @@ def customerlist():
             return render_template("customer_list.html",customer_list=customer_list)  
         else:
             search = request.form.get("search")
-            connection.execute("select * from customer where family_name =%s or firstname=%s order by family_name,first_name;",(search,search,) )
+            connection.execute("""select * from customer 
+                where family_name like '%%%%%s%%%%' or first_name like '%%%%%s%%%%' 
+                order by family_name,first_name"""% (search,search) )
             search_customer = connection.fetchall() 
-            # return redirect(url_for("customerlist"),search_customer=search_customer )     
             return render_template("customer_list.html",customer_list=search_customer )  
 
 @app.route("/addcustomer",methods = ["GET","POST"]) 

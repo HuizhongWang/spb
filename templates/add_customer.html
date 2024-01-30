@@ -5,24 +5,26 @@
 {% block content %}
 <h3>Add customer</h3>
 <div class="container">
-        <form class="form-horizontal" style="margin-top: 40px;" method="POST">
+    <div class="visually-hidden">
+        <form class="form-horizontal row g-3 needs-validation" style="margin-top: 40px;" method="POST" novalidate>
             <div class="form-group"> <label for="inputPassword3" class="col-sm-2 control-label">Family name (*)</label>
-                <div class="col-sm-10"> <input type="password" class="form-control" id="inputPassword3" placeholder="Family name">
+                <div class="col-sm-10"> <input type="text" class="form-control" id="inputPassword3" placeholder="Family name" required>
                 </div>
             </div>
             <div class="form-group"> <label for="inputPassword3" class="col-sm-2 control-label">First name</label>
-                <div class="col-sm-10"> <input type="password" class="form-control" id="inputPassword3" placeholder="First name">
+                <div class="col-sm-10"> <input type="text" class="form-control" id="inputPassword3" placeholder="First name">
                 </div>
             </div>
             <div class="form-group"> <label for="inputEmail3" class="col-sm-2 control-label">Email (*)</label>
-                <div class="col-sm-10"> <input type="email" class="form-control" id="inputEmail3" placeholder="Email"> </div>
+                <div class="col-sm-10"> <input type="email" class="form-control" id="inputEmail3" placeholder="Email" required> </div>
             </div>
             <div class="form-group"> <label for="inputEmail3" class="col-sm-2 control-label">Phone (*)</label>
-                <div class="col-sm-10"> <input type="Phone" class="form-control" id="inputEmail3" placeholder="Phone"> </div>
+                <div class="col-sm-10"> <input type="text" class="form-control" id="inputEmail3" placeholder="Phone" required> </div>
             </div>
             <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10"> <button type="submit" class="btn btn-primary">Submit</button> </div>
+                <div class="col-sm-offset-2 col-sm-10"> <button type="submit" class="btn btn-primary" name="submit">Submit</button> </div>
             </div>
         </form>
+    </div>
 </div>
 {% endblock %}
