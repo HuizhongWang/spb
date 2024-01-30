@@ -31,26 +31,4 @@
         {% endfor %}
     </tbody>
 </table>
-
-<!-- code to display list of search customers-->
-<table class="table" table-bordered>
-    <thead>
-        <tr>
-            <th>Customer ID</th>
-            <th>First name</th>
-            <th>Family Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for customer search_customer %}
-        <tr>
-            {% for field in customer %}
-            <th>{{field}}</th>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
 {% endblock %}

@@ -74,9 +74,10 @@ def customerlist():
             return render_template("customer_list.html",customer_list=customer_list)  
         else:
             search = request.form.get("search")
-            connection.execute("select * from customer where family_name =%s or firstname=%s order by family_name,first_name;",(search,) )
+            connection.execute("select * from customer where family_name =%s or firstname=%s order by family_name,first_name;",(search,search,) )
             search_customer = connection.fetchall() 
-            return redirect(url_for("customerlist"),search_customer=search_customer )     
+            # return redirect(url_for("customerlist"),search_customer=search_customer )     
+            return render_template("customer_list.html",customer_list=search_customer )  
 
 @app.route("/addcustomer",methods = ["GET","POST"]) 
 def addcustomer():
