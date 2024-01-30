@@ -67,10 +67,16 @@ def admin():
 
 @app.route("/customerlist",methods = ["GET","POST"]) 
 def customerlist():
-    connection = getCursor()
-    connection.execute("select * from customer order by family_name,first_name")
-    customer_list = connection.fetchall() 
-    return render_template("customer_list.html",customer_list=customer_list)    
+        connection = getCursor()
+        if request.method == "GET":   
+            connection.execute("select * from customer order by family_name,first_name")
+            customer_list = connection.fetchall() 
+            return render_template("customer_list.html",customer_list=customer_list)  
+        else:
+            search = request.form.get("search")
+            connection.execute("select * from customer where family_name =%s or firstname=%s order by family_name,first_name;",(search,) )
+            search_customer = connection.fetchall() 
+            return redirect(url_for("customerlist"),search_customer=search_customer )     
 
 @app.route("/addcustomer",methods = ["GET","POST"]) 
 def addcustomer():
