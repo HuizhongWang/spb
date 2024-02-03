@@ -53,7 +53,7 @@ def addjobs():
     global get_flashed_messages
     connection = getCursor()
 
-    # get job_id
+    # show job detail
     job_id = request.args.get('job_id') 
     connection.execute("""select j.job_id,j.customer,j.job_date from job j
         left join job_service js on j.job_id=js.job_id
@@ -128,8 +128,8 @@ def addpart():
     if request.method == "POST":   # 验证不为空，是小数，名字没有重复
         connection = getCursor()
         connection.execute("select part_name from part where part_name= %s",(partname,))
-        part= connection.fetchone()[0] 
-
+        part= connection.fetchone()[0]
+        print(partcost,partname,part)
         if partname != None and part != None and match_cost:
             partcost = decimal.Decimal(partcost)
             print(partcost,partname)
