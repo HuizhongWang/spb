@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,flash
 from flask import render_template
 from flask import request
 from flask import redirect
@@ -11,11 +11,10 @@ import connect
 import decimal
 
 app = Flask(__name__)
+app.secret_key = '123456'
 
 dbconn = None
 connection = None
-def get_flashed_messages():
-    pass
 
 # connect database
 def getCursor():
@@ -112,32 +111,87 @@ def customerlist():
 
 @app.route("/addcustomer",methods = ["GET","POST"]) 
 def addcustomer():
-    return render_template("add_customer.html")  
-
+    connection = getCursor()
+    if request.method == "GET":   
+        return render_template("add_customer.html")  
+    else:
+        # get input information
+        familyname= request.form.get("familyname").strip()
+        firstname= request.form.get("firstname").strip()
+        email= request.form.get("email").strip()
+        phone= request.form.get("phone").strip()
+        # check input information
+        if familyname == "" or not re.match("^.{1,25}$",familyname):
+            flash("Please input the family name (Not exceeding 25 letters).","danger")
+        elif not re.match("^.{1,25}$",firstname):
+            flash("The family name should not exceed 25 letters. Please input again","danger")
+        elif not re.match(".*@.*",email):
+            flash("Please input the right email.","danger")
+        elif not re.match("^[1-9]\d*$",phone):
+            flash("Please input the right phone.","danger")
+        # insert into database
+        else:
+            phone = int(phone)
+            connection.execute("insert into customer value(0,%s,%s,%s,%s)",(firstname,familyname,email,phone,))
+            flash("Add successfully !","success")
+        return redirect(url_for('addcustomer'))     
+    
 @app.route("/addservice",methods = ["GET","POST"]) 
-def addservice():
-    return render_template("add_service.html")    
+def addservice():  
+    connection = getCursor()
+    if request.method == "GET":   
+        return render_template("add_service.html")  
+    else:
+        # get service name
+        servicename= request.form.get("servicename").strip()
+        # check part cost format
+        servicecost= str(request.form.get("servicecost")).strip()
+        cost = r'^[1-9]\d{0,2}(\.\d{1,2})?$'
+        match_cost = re.match(cost,servicecost)
+        connection.execute("select service_name from service where service_name= %s",(servicename,))
+        service= connection.fetchone()
+        # service name should not be empty,service name should not be repeat,service cost shoule be in correct format
+        if servicename == "":
+            flash("Please input the service name.","danger")
+        elif service != None:
+            flash("The service name is already existed. Please input again.","danger")
+        elif not match_cost:
+            flash("The cost should be in 0.01~999.99! Please input again.","danger")
+        # insert into database
+        else:
+            servicecost = decimal.Decimal(servicecost)
+            connection.execute("insert into service value(0,%s,%s)",(servicename,servicecost,))
+            flash("Add successfully !","success")
+        return redirect(url_for('addservice'))        
 
 @app.route("/addpart",methods = ["GET","POST"]) 
 def addpart():
-    partname= request.form.get("partname")
-    partcost= str(request.form.get("partcost"))
-    cost = r'^\d{1,3}$'
-    match_cost = re.match(cost,partcost)
-    
-    if request.method == "POST":   # 验证不为空，是小数，名字没有重复
-        connection = getCursor()
+    connection = getCursor()
+    if request.method == "GET":   
+        return render_template("add_part.html")   
+    else:
+        # get part name
+        partname= request.form.get("partname").strip()
+        # check part cost format
+        partcost= str(request.form.get("partcost")).strip()
+        cost = r'^[1-9]\d{0,2}(\.\d{1,2})?$'
+        match_cost = re.match(cost,partcost)
         connection.execute("select part_name from part where part_name= %s",(partname,))
-        part= connection.fetchone()[0]
-        print(partcost,partname,part)
-        if partname != None and part != None and match_cost:
-            partcost = decimal.Decimal(partcost)
-            print(partcost,partname)
-            connection.execute("insert into part value(0,%s,%s)",(partname,partcost,))
+        part= connection.fetchone()
+        # part name should not be empty,part name should not be repeat,part cost shoule be in correct format
+        if partname == "":
+            flash("Please input the part name.","danger")
+        elif part != None:
+            flash("The part name is already existed. Please input again.","danger")
+        elif not match_cost:
+            flash("The cost should be in 0.01~999.99! Please input again.","danger")
+        # insert into database
         else:
-            print("repeat")
-     
-    return render_template("add_part.html")    
+            partcost = decimal.Decimal(partcost)
+            connection.execute("insert into part value(0,%s,%s)",(partname,partcost,))
+            flash("Add successfully !","success")
+        return redirect(url_for('addpart'))        
+      
 
 @app.route("/schedule",methods = ["GET","POST"]) 
 def schedule():
