@@ -117,21 +117,20 @@ def addcustomer():
     else:
         # get input information
         familyname= request.form.get("familyname").strip()
-        firstname= request.form.get("firstname").strip()
+        firstname= request.form.get("firstname")
         email= request.form.get("email").strip()
         phone= request.form.get("phone").strip()
         # check input information
         if familyname == "" or not re.match("^.{1,25}$",familyname):
             flash("Please input the family name (Not exceeding 25 letters).","danger")
-        elif not re.match("^.{1,25}$",firstname):
+        elif firstname!= None and not re.match("^.{0,25}$",firstname):
             flash("The family name should not exceed 25 letters. Please input again","danger")
         elif not re.match(".*@.*",email):
             flash("Please input the right email.","danger")
-        elif not re.match("^[1-9]\d*$",phone):
+        elif not re.match("^\d{1,11}$",phone):
             flash("Please input the right phone.","danger")
         # insert into database
         else:
-            phone = int(phone)
             connection.execute("insert into customer value(0,%s,%s,%s,%s)",(firstname,familyname,email,phone,))
             flash("Add successfully !","success")
         return redirect(url_for('addcustomer'))     
