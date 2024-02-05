@@ -4,32 +4,7 @@
 
 {% block content %}
 <h3>Customer List</h2>
-    <!--Customer search-->
-    <form class="navbar-form navbar-right" method="post" action="{{ url_for('customerlist')}}">
-        <input class="form-control mr-sm-2" type="search" placeholder="first name or surname" aria-label="Search"
-            name="search">
-        <button class="btn btn-outline-success my-2 my-sm-0" type="btn-primary">Search</button>
-        <div class="form-group" style="text-align: center; padding: 20px;">
-            <button class="btn btn-primary">Back to Customer List</button>
-        </div>
-    </form>
 
-    <!-- code to display list of customers-->
-    {% if customer_list == [] %}
-    <table class="table" table-bordered>
-        <thead>
-            <tr>
-                <th>Customer ID</th>
-                <th>First name</th>
-                <th>Family Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-            </tr>
-        </thead>
-    </table>
-    <div class="alert alert-danger" role="alert"> <strong>Oh snap!</strong> Not found</div>
-   
-    {% else %}
     <table class="table" table-bordered>
         <thead>
             <tr>
@@ -50,6 +25,5 @@
             {% endfor %}
         </tbody>
     </table>
-    {% endif %}
     
-    {% endblock %}
+{% endblock %}

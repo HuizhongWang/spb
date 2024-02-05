@@ -9,6 +9,7 @@ import mysql.connector
 from mysql.connector import FieldType
 import connect
 import decimal
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = '123456'
@@ -92,22 +93,30 @@ def addjobs():
 
 @app.route("/admin",methods = ["GET","POST"]) 
 def admin():
-    return render_template("admin.html")    
+    return render_template("admin.html")  
 
-@app.route("/customerlist",methods = ["GET","POST"]) 
+
+@app.route("/customerlist") 
 def customerlist():
+    connection = getCursor()
+    connection.execute("select * from customer order by family_name,first_name")
+    customer_list = connection.fetchall() 
+    return render_template("customer_list.html",customer_list=customer_list)    
+
+@app.route("/customersearch",methods = ["GET","POST"]) 
+def customersearch():
         connection = getCursor()
         if request.method == "GET":   
             connection.execute("select * from customer order by family_name,first_name")
             customer_list = connection.fetchall() 
-            return render_template("customer_list.html",customer_list=customer_list)  
+            return render_template("customer_search.html",customer_list=customer_list)  
         else:
             search = request.form.get("search")
             connection.execute("""select * from customer 
                 where family_name like '%%%%%s%%%%' or first_name like '%%%%%s%%%%' 
                 order by family_name,first_name"""% (search,search) )
             search_customer = connection.fetchall() 
-            return render_template("customer_list.html",customer_list=search_customer )  
+            return render_template("customer_search.html",customer_list=search_customer )  
 
 @app.route("/addcustomer",methods = ["GET","POST"]) 
 def addcustomer():
@@ -194,7 +203,36 @@ def addpart():
 
 @app.route("/schedule",methods = ["GET","POST"]) 
 def schedule():
-    return render_template("schedule_job.html")    
+    connection = getCursor()
+    # get all customer id/name for choosing 
+    connection.execute("""select concat(customer_id,"-",ifnull(first_name,'-'),'-',family_name) from customer""")
+    idname_list = connection.fetchall()
+
+    if request.method == "GET":   
+        return render_template("schedule_job.html",idname_list=idname_list)   
+    else:
+        # get the input data and fomat
+        customer_get = request.form.get("customerid").strip()   
+        date_get = request.form.get("date").strip()     
+        print(customer_get,date_get)
+        # check input data
+        flag = str
+        if date_get == "" or customer_get == "":
+            flash("Please select a customer and a date.","danger")
+        else:
+            for idname in idname_list:
+                if idname[0] == customer_get:
+                    flag = 1
+                    format = "%Y-%m-%d"
+                    date = datetime.strptime(date_get, format).date()
+                    customer = request.form.get("customerid").split("-")
+                    customerid = int(customer[0])
+                    connection.execute("insert into job(job_id,job_date,customer) value(0,%s,%s)",(date,customerid,))
+                    flash("Schedule successfully !","success")
+            if flag != 1:                
+                flash("Please select a customer from the options.","danger")
+        return redirect(url_for('schedule'))    
+        
 
 @app.route("/unpaidbills",methods = ["GET","POST"]) 
 def unpaidbills():
@@ -205,6 +243,7 @@ def unpaidbills():
     unpaidbills = connection.fetchall() 
     return render_template("unpaid_bills.html",unpaidbills = unpaidbills)    
 
+
 @app.route("/historybills",methods = ["GET","POST"])
 def historybills():
     connection = getCursor()
@@ -214,6 +253,7 @@ def historybills():
             order by b.job_date,b.customer;""")
     historybills = connection.fetchall() 
     return render_template("billing_history.html",historybills=historybills)    
+
 
 if __name__ == '__main__':
     app.run(debug=True)

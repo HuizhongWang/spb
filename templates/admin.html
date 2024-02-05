@@ -5,12 +5,13 @@
 {% block content %}
 <div class="list-group" style="margin-top: 40px;"> 
     <a class="list-group-item active"> Operation</a> 
-    <a href="{{ url_for('customerlist')}}" class="list-group-item">Customer list</a> 
-    <a href="{{ url_for('addcustomer')}}" class="list-group-item">Add customer</a> 
+    <a href="{{ url_for('customerlist')}}" class="list-group-item">Customer List</a> 
+    <a href="{{ url_for('customersearch')}}" class="list-group-item">Customer Search</a> 
+    <a href="{{ url_for('addcustomer')}}" class="list-group-item">Add Customer</a> 
     <a href="{{ url_for('addservice')}}"class="list-group-item">Add Service</a> 
     <a href="{{ url_for('addpart')}}" class="list-group-item">Add Part</a> 
     <a href="{{ url_for('schedule')}}" class="list-group-item">Schedule Job</a> 
-    <a href="{{ url_for('unpaidbills')}}" class="list-group-item">Unpaid bills & Pay Bills</a> 
+    <a href="{{ url_for('unpaidbills')}}" class="list-group-item">Unpaid Bills & Pay Bills</a> 
     <a href="{{ url_for('historybills')}}" class="list-group-item">Billing History & Overdue Bills</a> 
 </div>
 {% endblock %}
