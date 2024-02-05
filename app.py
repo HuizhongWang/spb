@@ -103,6 +103,7 @@ def customerlist():
     customer_list = connection.fetchall() 
     return render_template("customer_list.html",customer_list=customer_list)    
 
+
 @app.route("/customersearch",methods = ["GET","POST"]) 
 def customersearch():
         connection = getCursor()
@@ -117,6 +118,7 @@ def customersearch():
                 order by family_name,first_name"""% (search,search) )
             search_customer = connection.fetchall() 
             return render_template("customer_search.html",customer_list=search_customer )  
+
 
 @app.route("/addcustomer",methods = ["GET","POST"]) 
 def addcustomer():
@@ -144,6 +146,7 @@ def addcustomer():
             flash("Add successfully !","success")
         return redirect(url_for('addcustomer'))     
     
+
 @app.route("/addservice",methods = ["GET","POST"]) 
 def addservice():  
     connection = getCursor()
@@ -237,11 +240,23 @@ def schedule():
 @app.route("/unpaidbills",methods = ["GET","POST"]) 
 def unpaidbills():
     connection = getCursor()
-    connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date from job 
+    if request.method == "GET":   
+        connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date from job 
             inner join customer on job.customer= customer.customer_id 
-            where completed=0 order by job.job_date,job.customer;""")
-    unpaidbills = connection.fetchall() 
-    return render_template("unpaid_bills.html",unpaidbills = unpaidbills)    
+            where job.paid=0 and job.completed=1
+            order by job.job_date,job.customer;""")
+        unpaidbills = connection.fetchall() 
+        return render_template("unpaid_bills.html",unpaidbills = unpaidbills)   
+    else:
+        # filter by customer name/id
+        search = request.form.get("search")
+        connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date from job 
+            inner join customer on job.customer= customer.customer_id 
+            where job.paid=0 and job.completed=1 and 
+                    (customer.family_name like '%%%%%s%%%%' or customer.first_name like '%%%%%s%%%%' or job.customer="%s") 
+            order by job.job_date,job.customer;"""% (search,search,search) )
+        unpaidbills = connection.fetchall() 
+        return render_template("unpaid_bills.html",unpaidbills = unpaidbills)    
 
 
 @app.route("/historybills",methods = ["GET","POST"])
