@@ -3,43 +3,63 @@
 {% block title %}{{addservice}}{% endblock %}
 
 {% block content %}
-<h3>Add service</h3>
-<div class="container">
-    <form class="form-horizontal" style="margin-top: 40px;" action="/addservice" method="POST" id="myForm">
-        <div class="form-group">
-            <label for="inputPassword3" class="col-sm-2 control-label">Service name</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name="servicename" placeholder="Service name">
-            </div>
+<div class="row">
+    <!--left list-->
+    <div class="col-2">
+        <div class="list-group" style="margin-top: 40px;">
+            <a class="list-group-item active"> Admin</a>
+            <a href="{{ url_for('customerlist')}}" class="list-group-item">Customer List</a>
+            <a href="{{ url_for('customersearch')}}" class="list-group-item">Customer Search</a>
+            <a href="{{ url_for('addcustomer')}}" class="list-group-item">Add Customer</a>
+            <a href="{{ url_for('addservice')}}" class="list-group-item">Add Service</a>
+            <a href="{{ url_for('addpart')}}" class="list-group-item">Add Part</a>
+            <a href="{{ url_for('schedule')}}" class="list-group-item">Schedule Job</a>
+            <a href="{{ url_for('unpaidbills')}}" class="list-group-item">Unpaid Bills & Pay Bills</a>
+            <a href="{{ url_for('historybills')}}" class="list-group-item">Billing History & Overdue Bills</a>
         </div>
-        <div class="form-group">
-            <label for="inputPassword3" class="col-sm-2 control-label">Part cost</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name="servicecost" placeholder="Please write in the format with two decimal places. Range: 0.01~999.99">
-            </div>
-        </div>
+    </div>
+    <!--right content-->
+    <div class="col-10">
+        <h3>Add service</h3>
+        <div class="container">
+            <form class="form-horizontal" style="margin-top: 40px;" action="/addservice" method="POST" id="myForm">
+                <div class="form-group">
+                    <label for="inputPassword3" class="col-sm-2 control-label">Service name</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="servicename" placeholder="Service name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword3" class="col-sm-2 control-label">Part cost</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="servicecost" placeholder="Range: 0.01~999.99">
+                    </div>
+                </div>
 
-        <!-- Button trigger modal -->
-        <div class="form-group" style="text-align: center; padding: 20px;"> 
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Submit</button>
-        </div> 
-    </form>
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add Service</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                <!-- Button trigger modal -->
+                <div class="form-group" style="text-align: center; padding: 20px;">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">Submit</button>
                 </div>
-                <div class="modal-body">
-                    Do you want to add service to the database?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" form="myForm">Save changes</button>
+            </form>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Service</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Do you want to add service to the database?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" form="myForm">Save changes</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

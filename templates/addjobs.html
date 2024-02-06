@@ -5,113 +5,108 @@
 {% block content %}
 
 <h3>Add Jobs</h2>
-    <button type="button" class="btn btn-success btn-sm">Mark as completed</button>
-<!--show add job object-->
-    <table class="table" table-bordered id="grid">
-        <thead>
-            <tr>
-                <th>Job ID</th>
-                <th>Customer ID</th>
-                <th>Date</th>
-                <th>Job service</th>
-                <th>qty</th>
-                <th>price</th>
-                <th>Job part</th>
-                <th>qty</th>
-                <th>price</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for job in job_detail_list %}
-            <tr>
-                {% for field in job %}
-                <th>{{field}}</th>
-                {% endfor %}
-            </tr>
-            {% endfor %}
 
-        </tbody>
-    </table>
+<!--show add job object-->
+<table class="table" table-bordered id="grid">
+    <thead>
+        <tr>
+            <th>Job ID</th>
+            <th>Customer ID</th>
+            <th>Date</th>
+            <th>Job service</th>
+            <th>qty</th>
+            <th>price</th>
+            <th>Job part</th>
+            <th>qty</th>
+            <th>price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in job_detail_list %}
+        <tr>
+            {% for field in job %}
+            <td>{{field}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
 
 <!--add submit-->
-    <div class="container">
-        <form class="form-horizontal" style="margin-top: 40px;" method="post">
-            <div class="row clearfix">
-                <div class="col-xs-6">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">Service</label>
-                        <div class="col-sm-10">
-                            <select class="form-control" selected name="service_name">
-                                <option>Open this select menu</option>
-                                {% for field in service_list %}
-                                    <option>{{field[1]}}</option> 
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-6">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">qty</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" placeholder="Service qty" name="service_qty">
-                        </div>
+<div class="container">
+    <form class="form-horizontal" style="margin-top: 40px;" method="post">
+        <div class="row clearfix">
+            <div class="col-6">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Service</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" selected name="service_name">
+                            <option>Open this select menu</option>
+                            {% for field in service_list %}
+                                <option>{{field[1]}}</option> 
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
             </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">qty</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" placeholder="Service qty" name="service_qty">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <div class="row clearfix">
-                <div class="col-xs-6">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">Part</label>
-                        <div class="col-sm-10">
-                            <select class="form-control" name="part_name">
-                                <option selected>Open this select menu</option>
-                                {% for field in part_list %}
-                                    <option>{{field[1]}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-6">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">qty</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" placeholder="Part qty" name="part_qty">
-                        </div>
+        <div class="row clearfix">
+            <div class="col-6">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Part</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" name="part_name">
+                            <option selected>Open this select menu</option>
+                            {% for field in part_list %}
+                                <option>{{field[1]}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
             </div>
-            <!-- <div class="form-group" style="text-align: center; padding: 20px;">
-                <button class="btn btn-primary"></button>
-            </div> -->
-            
-            <!-- Button trigger modal -->
-            <div class="form-group" style="text-align: center; padding: 20px;">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Submit</button>
-            </div> 
-            <!-- Modal -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add Job</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+            <div class="col-6">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">qty</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" placeholder="Part qty" name="part_qty">
                     </div>
-                    <div class="modal-body">
-                    Do you want to add the data to database?
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary"data-dismiss="modal">Save changes</button>
-                    </div>
-                </div>
                 </div>
             </div>
-        </form>
+        </div>
+        
+        <!-- Button trigger modal -->
+        <div class="form-group" style="text-align: center; padding: 20px;"> 
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
+        </div> 
+    </form>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Job</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do you want to add the job?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="myForm">Save changes</button>
+            </div>
+        </div>
+        </div>
     </div>
-
-    {% endblock %}
+</div>
+{% endblock %}

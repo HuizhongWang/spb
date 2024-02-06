@@ -3,7 +3,25 @@
 {% block title %}{{customersearch}}{% endblock %}
 
 {% block content %}
-<h3>Customer Search</h2>
+<div class="row">
+    <!--left list-->
+    <div class="col-2">
+        <div class="list-group" style="margin-top: 40px;"> 
+            <a class="list-group-item active"> Admin</a> 
+            <a href="{{ url_for('customerlist')}}" class="list-group-item">Customer List</a> 
+            <a href="{{ url_for('customersearch')}}" class="list-group-item">Customer Search</a> 
+            <a href="{{ url_for('addcustomer')}}" class="list-group-item">Add Customer</a> 
+            <a href="{{ url_for('addservice')}}"class="list-group-item">Add Service</a> 
+            <a href="{{ url_for('addpart')}}" class="list-group-item">Add Part</a> 
+            <a href="{{ url_for('schedule')}}" class="list-group-item">Schedule Job</a> 
+            <a href="{{ url_for('unpaidbills')}}" class="list-group-item">Unpaid Bills & Pay Bills</a> 
+            <a href="{{ url_for('historybills')}}" class="list-group-item">Billing History & Overdue Bills</a> 
+        </div>
+    </div>
+
+    <!--right content-->
+    <div class="col-10">    
+    <h3>Customer Search</h2>
     <!--Customer search-->
     <form class="navbar-form navbar-right" method="post" action="{{ url_for('customersearch')}}">
         <input class="form-control mr-sm-2" type="search" placeholder="first name or surname" aria-label="Search"
@@ -44,12 +62,13 @@
             {% for customer in customer_list %}
             <tr>
                 {% for field in customer %}
-                <th>{{field}}</th>
+                <td>{{field}}</td>
                 {% endfor %}
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% endif %}
-    
+    </div> 
+</div> 
 {% endblock %}

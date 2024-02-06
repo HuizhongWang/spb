@@ -256,6 +256,8 @@ def unpaidbills():
                     (customer.family_name like '%%%%%s%%%%' or customer.first_name like '%%%%%s%%%%' or job.customer="%s") 
             order by job.job_date,job.customer;"""% (search,search,search) )
         unpaidbills = connection.fetchall() 
+
+        
         return render_template("unpaid_bills.html",unpaidbills = unpaidbills)    
 
 

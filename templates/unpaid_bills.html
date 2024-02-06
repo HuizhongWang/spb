@@ -3,79 +3,93 @@
 {% block title %}{{unpaidbills}}{% endblock %}
 
 {% block content %}
+<div class="row">
+<!--left list-->
+    <div class="col-2">
+        <div class="list-group" style="margin-top: 40px;"> 
+            <a class="list-group-item active"> Admin</a> 
+            <a href="{{ url_for('customerlist')}}" class="list-group-item">Customer List</a> 
+            <a href="{{ url_for('customersearch')}}" class="list-group-item">Customer Search</a> 
+            <a href="{{ url_for('addcustomer')}}" class="list-group-item">Add Customer</a> 
+            <a href="{{ url_for('addservice')}}"class="list-group-item">Add Service</a> 
+            <a href="{{ url_for('addpart')}}" class="list-group-item">Add Part</a> 
+            <a href="{{ url_for('schedule')}}" class="list-group-item">Schedule Job</a> 
+            <a href="{{ url_for('unpaidbills')}}" class="list-group-item">Unpaid Bills & Pay Bills</a> 
+            <a href="{{ url_for('historybills')}}" class="list-group-item">Billing History & Overdue Bills</a> 
+        </div>
+    </div>
+<!--right content-->
+    <div class="col-10"> 
+    <h3>Unpaid bills & Pay Bills</h3>
+    <!-- code to display list of unpaidbills-->
+    <div class="container">
+    <form class="navbar-form navbar-right" style="margin-top: 40px;" method="post" action="{{ url_for('unpaidbills')}}" id="myForm">
+        <input class="form-control mr-sm-10" type="search" placeholder="customer name/ID" aria-label="Search"
+            name="search">
+        <button class="btn btn-outline-success my-2 my-sm-10" type="btn-primary">Search</button>
 
-<h3>Unpaid bills & Pay Bills</h3>
+        {% if unpaidbills == [] %}
+        <table class="table" table-bordered>
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Customer ID</th>
+                    <th>First Name</th>
+                    <th>Family Name</th>
+                    <th>Date</th>
+                    <th>Mark as paid</th>
+                </tr>
+            </thead>
+        </table>
+        <div class="alert alert-danger" role="alert"> <strong>Oh snap!</strong> Not found</div>   
 
-<!-- code to display list of unpaidbills-->
-<div class="container">
-<form class="navbar-form navbar-right" style="margin-top: 40px;" method="post" action="{{ url_for('unpaidbills')}}" id="myForm">
-    <input class="form-control mr-sm-10" type="search" placeholder="customer name/ID" aria-label="Search"
-        name="search">
-    <button class="btn btn-outline-success my-2 my-sm-10" type="btn-primary">Search</button>
+        {% else %}
 
-    {% if unpaidbills == [] %}
-    <table class="table" table-bordered>
-        <thead>
-            <tr>
-                <th>Job ID</th>
-                <th>Customer ID</th>
-                <th>First Name</th>
-                <th>Family Name</th>
-                <th>Date</th>
-                <th>Mark as paid</th>
-            </tr>
-        </thead>
-    </table>
-    <div class="alert alert-danger" role="alert"> <strong>Oh snap!</strong> Not found</div>   
-
-    {% else %}
-
-    <table class="table" table-bordered>
-        <thead>
-            <tr>
-                <th>Job ID</th>
-                <th>Customer ID</th>
-                <th>First Name</th>
-                <th>Family Name</th>
-                <th>Date</th>
-                <th>Mark as paid</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for bills in unpaidbills %}
-            <tr>
-                {% for field in bills %}
-                <td>{{field}}</td>
+        <table class="table" table-bordered>
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Customer ID</th>
+                    <th>First Name</th>
+                    <th>Family Name</th>
+                    <th>Date</th>
+                    <th>Mark as paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bills in unpaidbills %}
+                <tr>
+                    {% for field in bills %}
+                    <td>{{field}}</td>
+                    {% endfor %}
+                    <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" >Paid</button></td>
+                </tr>
                 {% endfor %}
-                <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" >Paid</button></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
+            </tbody>
+        </table>
+        {% endif %}
 
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add Service</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Do you want to add service to the database?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" form="myForm">Save changes</button>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Service</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Do you want to add service to the database?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" form="myForm">Save changes</button>
+                </div>
             </div>
         </div>
     </div>
+    </form>
+    </div>
 </div>
-</form>
-
 </div>
-
-
 {% endblock %}
