@@ -1,6 +1,6 @@
 from flask import Flask,flash
 from flask import render_template
-from flask import request
+from flask import request,session
 from flask import redirect
 from flask import url_for
 import re
@@ -45,31 +45,49 @@ def currentjobs():
             where completed=0 order by customer.family_name,customer.first_name;""")
         jobList = connection.fetchall() 
         return render_template("currentjoblist.html", job_list = jobList)    
-    else:
+    else:      
         return redirect(url_for("addjobs"))
 
-@app.route("/addjobs",methods = ["GET","POST"])    # technician add jobs
+
+@app.route("/addjobs",methods = ["GET","POST"])    
 def addjobs():
-    global get_flashed_messages
     connection = getCursor()
-
-    # show job detail
+    global job_detail_list,service_list,part_list,serviceall,partall
+    total_cost = ""
     job_id = request.args.get('job_id') 
-    connection.execute("""select j.job_id,j.customer,j.job_date from job j
-        left join job_service js on j.job_id=js.job_id
-        where j.job_id= %s
-        group by j.job_id;""", (job_id,) )        
-    job_detail_list = connection.fetchall() 
+    if request.method == 'GET':     
+        # show job detail
+        connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date from job 
+            inner join customer on job.customer= customer.customer_id 
+            where job.job_id= %s
+            group by job.job_id;""", (job_id,) )        
+        job_detail_list = connection.fetchall()    
 
-    # get service info
-    connection.execute("select * from service")
-    service_list = connection.fetchall() 
+        # job detail of service
+        connection.execute("""select s.service_name,s.cost,js.qty from job_service js
+            inner join service s on js.service_id = s.service_id
+            where js.job_id = %s
+            order by s.service_name;""", (job_id,) )
+        service_list = connection.fetchall() 
 
-    # get part info
-    connection.execute("select * from part")
-    part_list = connection.fetchall() 
-    
-    if request.method == 'POST':    
+        # job detail of part
+        connection.execute("""select p.part_name,p.cost,jp.qty from job_part jp
+            inner join part p on jp.part_id = p.part_id
+            where jp.job_id = %s
+            order by p.part_name;""", (job_id,))
+        part_list = connection.fetchall() 
+
+        # all service/part name
+        connection.execute("select service_name from service order by service_name")
+        serviceall = connection.fetchall() 
+        connection.execute("select part_name from part order by part_name")
+        partall = connection.fetchall() 
+
+        session['job_id'] = request.args.get('job_id')
+             
+    elif request.method == 'POST':     
+        job_id = session.get('job_id')
+
         # get input imformation
         service = request.form.get('service_name') 
         service_qty = request.form.get('service_qty') 
@@ -79,17 +97,82 @@ def addjobs():
         match_service = re.match(qty,service_qty)
         match_part = re.match(qty,part_qty)
 
-        if service!="Open this select menu" and match_service:
-            print(service)
-            connection.execute("select service_id from service where %s = service_name",(service,))
-            service_id = connection.fetchone()[0]
-            connection.execute("insert into job_service value (%s,%s,%s)",(job_id,service_id,service_qty,))
-        elif part!="Open this select menu" and match_part:
-            connection.execute("select part_id from part where %s = part_name",(part,))
-            part_id = connection.fetchone()[0]
-            connection.execute("insert into job_part value (%s,%s,%s)",(job_id,part_id,part_qty,))
+        # complete the job
+        if request.values.get("complete") == "complete":           
+            connection.execute("update job set completed=1 where job_id=%s",(job_id,))
+            # total service cost
+            connection.execute("""select sum(js.qty*s.cost) from job_service js
+                inner join service s on js.service_id = s.service_id 
+                where js.job_id = %s;""",(job_id,))
+            service_cost = connection.fetchone()
+            # total part cost
+            connection.execute("""select sum(jp.qty*p.cost) from job_part jp
+                inner join part p on jp.part_id = p.part_id 
+                where jp.job_id = %s;""",(job_id,))
+            part_cost = connection.fetchone()
+            if  service_cost!= None and part_cost == None:
+                total_cost = service_cost[0]
+            elif service_cost== None and part_cost != None:
+                total_cost = part_cost[0]
+            elif service_cost != None and part_cost != None:
+                total_cost = part_cost[0] + service_cost[0]
+            print("=========================",service_cost,type(service_cost),part_cost,type(part_cost),total_cost)
+            flash("The job is marked as completed.","success")
+        
+        # add job
+        if request.values.get("add") == "add":
+            # add service to the job
+            if service!="Open this select menu" and match_service:
+                # through service_name get service_id
+                connection.execute("select service_id from service where %s = service_name",(service,))
+                service_id= connection.fetchone()[0]
 
-    return render_template("addjobs.html",job_detail_list=job_detail_list,service_list=service_list,part_list=part_list)    
+                # check if the service_id is existed in the job
+                connection.execute("select qty from job_service where %s = service_id and %s = job_id",(service_id,job_id,))
+                check_service= connection.fetchone()
+                if check_service == None: 
+                    connection.execute("insert into job_service value (%s,%s,%s)",(job_detail_list[0][0],service_id,service_qty,))
+                else:
+                    service_qty = int(service_qty)
+                    service_qty = service_qty + check_service[0]
+                    connection.execute("update job_service set qty=%s where service_id=%s",(service_qty,service_id,))
+                flash("Add service to the job successfully","success")
+
+                # selct service again after add jobs
+                connection.execute("""select s.service_name,s.cost,js.qty from job_service js
+                    inner join service s on js.service_id = s.service_id
+                    where js.job_id = %s
+                    order by s.service_name;""", (job_id,) )
+                service_list = connection.fetchall() 
+            
+            # add part to the job
+            elif part!="Open this select menu" and match_part:             
+                # through part_name get part_id
+                connection.execute("select part_id from part where %s = part_name",(part,))
+                part_id= connection.fetchone()[0]
+                # check if the part id is existed in the job
+                connection.execute("select qty from job_part where %s = part_id and %s = job_id",(part_id,job_id))
+                check_part= connection.fetchone()
+                if check_part == None:
+                    connection.execute("insert into job_part value (%s,%s,%s)",(job_detail_list[0][0],part_id,part_qty,))
+                else:
+                    part_qty = int(part_qty)
+                    part_qty = part_qty + check_part[0]
+                    connection.execute("update job_part set qty=%s where part_id=%s",(part_qty,part_id,))
+                flash("Add part to the job successfully","success")
+
+                # selct part again after add jobs
+                connection.execute("""select p.part_name,p.cost,jp.qty from job_part jp
+                    inner join part p on jp.part_id = p.part_id
+                    where jp.job_id = %s
+                    order by p.part_name;""", (job_id,) )
+                part_list= connection.fetchall() 
+
+            else:
+                flash("Please choose at least one part/service and input the right qty.","danger")
+
+    return render_template("addjobs.html",job_detail_list=job_detail_list,service_list=service_list,part_list=part_list,serviceall=serviceall,partall=partall,total_cost=total_cost) 
+
 
 @app.route("/admin",methods = ["GET","POST"]) 
 def admin():

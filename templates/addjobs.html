@@ -6,19 +6,18 @@
 
 <h3>Add Jobs</h2>
 
-<!--show add job object-->
+<!--show the job-->
+
 <table class="table" table-bordered id="grid">
     <thead>
         <tr>
             <th>Job ID</th>
             <th>Customer ID</th>
+            <th>First Name</th>
+            <th>Family Name</th>
             <th>Date</th>
-            <th>Job service</th>
-            <th>qty</th>
-            <th>price</th>
-            <th>Job part</th>
-            <th>qty</th>
-            <th>price</th>
+            <th>Mark</th>
+            <th>Total Cost</th>
         </tr>
     </thead>
     <tbody>
@@ -27,86 +26,145 @@
             {% for field in job %}
             <td>{{field}}</td>
             {% endfor %}
+            <td>
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal1">Completed</button>
+                </div>
+            </td>
+            <td>{{total_cost}}</td>
         </tr>
         {% endfor %}
-
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Mark as completed</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Do you want to mark the job as completed?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" form="myForm" value="complete" name="complete" method="POST">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </tbody>
 </table>
 
+
+<!--show the service and part detail-->
+<div class="container">
+    <div class="row"> 
+        <div class="col">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Service Name</th>
+                    <th>cost</th>
+                    <th>qty</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for field in service_list %}
+                    <tr>
+                        <td>{{field[0]}}</td>
+                        <td>{{field[1]}}</td>
+                        <td>{{field[2]}}</td>
+                    <tr>
+                {% endfor %}    
+            </table>
+        </div>
+
+        <div class="col">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Part Name</th>
+                    <th>cost</th>
+                    <th>qty</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for field in part_list %}
+                <tr>
+                    <td>{{field[0]}}</td>
+                    <td>{{field[1]}}</td>
+                    <td>{{field[2]}}</td>
+                <tr>
+                {% endfor %}    
+            </table>
+        </div>
+    </div>
+</div>
 <!--add submit-->
 <div class="container">
-    <form class="form-horizontal" style="margin-top: 40px;" method="post">
-        <div class="row clearfix">
-            <div class="col-6">
+    <form class="form-horizontal" style="margin-top: 40px;" action="/addjobs" method="POST" id="myForm">
+    <div class="row">       
+            <div class="col">
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Service</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" selected name="service_name">
-                            <option>Open this select menu</option>
-                            {% for field in service_list %}
-                                <option>{{field[1]}}</option> 
-                            {% endfor %}
-                        </select>
-                    </div>
+                    <label class="col-sm-2 control-label">Service</label>                 
+                    <select class="form-control" selected name="service_name">
+                        <option>Open this select menu</option>
+                        {% for field in serviceall %}
+                        <option>{{field[0]}}</option>
+                        {% endfor %}
+                    </select>         
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">qty</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" placeholder="Service qty" name="service_qty">
-                    </div>
+                    <input type="text" class="form-control" placeholder="Service qty" name="service_qty">
                 </div>
             </div>
-        </div>
-
-        <div class="row clearfix">
-            <div class="col-6">
+            <div class="col">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Part</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" name="part_name">
-                            <option selected>Open this select menu</option>
-                            {% for field in part_list %}
-                                <option>{{field[1]}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                    <select class="form-control" name="part_name">
+                        <option selected>Open this select menu</option>
+                        {% for field in partall %}
+                        <option>{{field[0]}}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">qty</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" placeholder="Part qty" name="part_qty">
-                    </div>
+                    <input type="text" class="form-control" placeholder="Part qty" name="part_qty">
                 </div>
             </div>
-        </div>
-        
+    </div>    
         <!-- Button trigger modal -->
-        <div class="form-group" style="text-align: center; padding: 20px;"> 
+        <div class="form-group" style="text-align: center; padding: 20px;">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
-        </div> 
+        </div>
     </form>
+</div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Job</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Job</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 Do you want to add the job?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" form="myForm">Save changes</button>
+                <button type="submit" class="btn btn-primary" form="myForm" name="add" value="add">Save changes</button>
             </div>
-        </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
