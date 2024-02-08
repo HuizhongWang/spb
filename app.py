@@ -104,20 +104,22 @@ def addjobs():
             connection.execute("""select sum(js.qty*s.cost) from job_service js
                 inner join service s on js.service_id = s.service_id 
                 where js.job_id = %s;""",(job_id,))
-            service_cost = connection.fetchone()
+            service_cost = connection.fetchone()[0]
             # total part cost
             connection.execute("""select sum(jp.qty*p.cost) from job_part jp
                 inner join part p on jp.part_id = p.part_id 
                 where jp.job_id = %s;""",(job_id,))
-            part_cost = connection.fetchone()
-            if  service_cost!= None and part_cost == None:
-                total_cost = service_cost[0]
-            elif service_cost== None and part_cost != None:
-                total_cost = part_cost[0]
-            elif service_cost != None and part_cost != None:
-                total_cost = part_cost[0] + service_cost[0]
-            print("=========================",service_cost,type(service_cost),part_cost,type(part_cost),total_cost)
+            part_cost = connection.fetchone()[0]
+            # calculate total cost
+            if service_cost == None:
+                service_cost = 0
+            elif part_cost == None:
+                part_cost = 0
+            total_cost = part_cost+ service_cost
+            connection.execute("update job set total_cost=%s where job_id=%s;",(total_cost,job_id,))
+
             flash("The job is marked as completed.","success")
+            return redirect(url_for('currentjobs'))  
         
         # add job
         if request.values.get("add") == "add":
@@ -171,6 +173,23 @@ def addjobs():
             else:
                 flash("Please choose at least one part/service and input the right qty.","danger")
 
+        # total service cost
+        connection.execute("""select sum(js.qty*s.cost) from job_service js
+        inner join service s on js.service_id = s.service_id 
+        where js.job_id = %s;""",(job_id,))
+        service_cost = connection.fetchone()[0]
+        # total part cost
+        connection.execute("""select sum(jp.qty*p.cost) from job_part jp
+            inner join part p on jp.part_id = p.part_id 
+            where jp.job_id = %s;""",(job_id,))
+        part_cost = connection.fetchone()[0]
+        
+        if service_cost == None:
+            service_cost = 0
+        elif part_cost == None:
+            part_cost = 0
+        total_cost = part_cost+ service_cost
+        
     return render_template("addjobs.html",job_detail_list=job_detail_list,service_list=service_list,part_list=part_list,serviceall=serviceall,partall=partall,total_cost=total_cost) 
 
 
@@ -258,6 +277,7 @@ def addservice():
             flash("Add successfully !","success")
         return redirect(url_for('addservice'))        
 
+
 @app.route("/addpart",methods = ["GET","POST"]) 
 def addpart():
     connection = getCursor()
@@ -324,7 +344,7 @@ def schedule():
 def unpaidbills():
     connection = getCursor()
     if request.method == "GET":   
-        connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date from job 
+        connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date,job.total_cost from job 
             inner join customer on job.customer= customer.customer_id 
             where job.paid=0 and job.completed=1
             order by job.job_date,job.customer;""")
@@ -332,26 +352,48 @@ def unpaidbills():
         return render_template("unpaid_bills.html",unpaidbills = unpaidbills)   
     else:
         # filter by customer name/id
-        search = request.form.get("search")
-        connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date from job 
-            inner join customer on job.customer= customer.customer_id 
-            where job.paid=0 and job.completed=1 and 
-                    (customer.family_name like '%%%%%s%%%%' or customer.first_name like '%%%%%s%%%%' or job.customer="%s") 
-            order by job.job_date,job.customer;"""% (search,search,search) )
-        unpaidbills = connection.fetchall() 
+        if request.values.get("search") == "search":
+            search = request.form.get("search")
+            connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date,job.total_cost from job 
+                inner join customer on job.customer= customer.customer_id 
+                where job.paid=0 and job.completed=1 and 
+                        (customer.family_name like '%%%%%s%%%%' or customer.first_name like '%%%%%s%%%%' or job.customer="%s") 
+                order by job.job_date,job.customer;"""% (search,search,search) )
+            unpaidbills = connection.fetchall()      
 
-        
+        # pay the bills
+        if request.values.get("paid") == "paid":
+            paid = request.form.get("markpaid")
+            connection.execute("update job set paid=1 where job_id=%s",(paid,))
+            flash("The job is marked as paid.","success")
+
+            # after paying the bill, show the unpaid bills again
+            connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date from job 
+            inner join customer on job.customer= customer.customer_id 
+            where job.paid=0 and job.completed=1
+            order by job.job_date,job.customer;""")
+            unpaidbills = connection.fetchall() 
+
         return render_template("unpaid_bills.html",unpaidbills = unpaidbills)    
 
 
 @app.route("/historybills",methods = ["GET","POST"])
 def historybills():
     connection = getCursor()
-    connection.execute("""SELECT * from customer as a
-            inner join job as b
-            on b.customer = a.customer_id 
-            order by b.job_date,b.customer;""")
+    # connection.execute("""SELECT c.customer_id,c.first_name,c.family_name,c.email,c.phone, j.job_id,j.job_date,j.total_cost,j.completed,j.paid from customer c
+    #         inner join job j
+    #         on j.customer = c.customer_id 
+	# 		order by c.family_name,c.first_name,j.job_date;""")
+    connection.execute("""SELECT group_concat("ID:",c.customer_id," Name:",ifnull(c.first_name,'-'),c.family_name," Email:",c.email," Phone:",c.phone),
+            group_concat(j.job_id,"/",j.job_date,"/",ifnull(j.total_cost,'-'),"/",j.completed,"/",j.paid) from customer c
+            inner join job j
+            on j.customer = c.customer_id 
+            group by j.job_id
+			order by c.family_name,c.first_name,j.job_date;""")
+
     historybills = connection.fetchall() 
+    
+    print(historybills)
     return render_template("billing_history.html",historybills=historybills)    
 
 

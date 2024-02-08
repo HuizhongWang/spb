@@ -32,7 +32,6 @@
                 <th>Phone</th>
                 <th>Job ID</th>
                 <th>Job Date</th>
-                <th visible:False>Customer</th>
                 <th>Total Cost</th>
                 <th>Completed</th>
                 <th>Paid</th>
@@ -40,11 +39,31 @@
             </tr>
         </thead>
         <tbody>
-            {% for bills in historybills %}
+            {% for bill in historybills %}
+            <!-- <tr>
+                <td>{{bill[0]}}</td>
+                <td>{{bill[1]}}</td>
+                <td>{{bill[2]}}</td>
+                <td>{{bill[3]}}</td>
+                <td>{{bill[4]}}</td>
+                <td>{{bill[5]}}</td>
+                <td>{{bill[6]}}</td>
+                <td>{{bill[7]}}</td>
+                {% if bill[8]== 1 %}
+                    <td>Yes</td>
+                {% else %}
+                    <td>No</td>
+                {% endif %}
+                {% if bill[9]== 1 %}
+                    <td>Yes</td>
+                {% else %}
+                    <td>No</td>
+                {% endif %}
+            </tr> -->
             <tr>
-                {% for field in bills %}
-                <td>{{field}}</td>
-                {% endfor %}           
+                <td>{{bill[0]}}</td>
+                <td>{{bill[1].strip("/")}}</td>
+
             </tr>
             {% endfor %}
         </tbody>
