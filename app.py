@@ -44,6 +44,7 @@ def currentjobs():
             inner join customer on job.customer= customer.customer_id 
             where completed=0 order by customer.family_name,customer.first_name;""")
         jobList = connection.fetchall() 
+        colseCursor()
         return render_template("currentjoblist.html", job_list = jobList)    
     else:      
         return redirect(url_for("addjobs"))
@@ -119,6 +120,7 @@ def addjobs():
             connection.execute("update job set total_cost=%s where job_id=%s;",(total_cost,job_id,))
 
             flash("The job is marked as completed.","success")
+            colseCursor()
             return redirect(url_for('currentjobs'))  
         
         # add job
@@ -216,7 +218,7 @@ def addjobs():
         elif part_cost == None:
             part_cost = 0
         total_cost = part_cost+ service_cost
-        
+    colseCursor()   
     return render_template("addjobs.html",job_detail_list=job_detail_list,service_list=service_list,part_list=part_list,serviceall=serviceall,partall=partall,total_cost=total_cost) 
 
 
@@ -230,6 +232,7 @@ def customerlist():
     connection = getCursor()
     connection.execute("select * from customer order by family_name,first_name")
     customer_list = connection.fetchall() 
+    colseCursor()
     return render_template("customer_list.html",customer_list=customer_list)    
 
 
@@ -239,6 +242,7 @@ def customersearch():
         if request.method == "GET":   
             connection.execute("select * from customer order by family_name,first_name")
             customer_list = connection.fetchall() 
+            colseCursor()
             return render_template("customer_search.html",customer_list=customer_list)  
         else:
             search = request.form.get("search")
@@ -246,6 +250,7 @@ def customersearch():
                 where family_name like '%%%%%s%%%%' or first_name like '%%%%%s%%%%' 
                 order by family_name,first_name"""% (search,search) )
             search_customer = connection.fetchall() 
+            colseCursor()
             return render_template("customer_search.html",customer_list=search_customer )  
 
 
@@ -273,6 +278,7 @@ def addcustomer():
         else:
             connection.execute("insert into customer value(0,%s,%s,%s,%s)",(firstname,familyname,email,phone,))
             flash("Add successfully !","success")
+        colseCursor()
         return redirect(url_for('addcustomer'))     
     
 
@@ -302,6 +308,7 @@ def addservice():
             servicecost = decimal.Decimal(servicecost)
             connection.execute("insert into service value(0,%s,%s)",(servicename,servicecost,))
             flash("Add successfully !","success")
+        colseCursor()
         return redirect(url_for('addservice'))        
 
 
@@ -331,6 +338,7 @@ def addpart():
             partcost = decimal.Decimal(partcost)
             connection.execute("insert into part value(0,%s,%s)",(partname,partcost,))
             flash("Add successfully !","success")
+        colseCursor()
         return redirect(url_for('addpart'))        
       
 
@@ -342,6 +350,7 @@ def schedule():
     idname_list = connection.fetchall()
 
     if request.method == "GET":   
+        colseCursor()
         return render_template("schedule_job.html",idname_list=idname_list)   
     else:
         # get the input data and fomat
@@ -364,6 +373,7 @@ def schedule():
                     flash("Schedule successfully !","success")
             if flag != 1:                
                 flash("Please select a customer from the options.","danger")
+        colseCursor()
         return redirect(url_for('schedule'))    
         
 
@@ -376,17 +386,18 @@ def unpaidbills():
             where job.paid=0 and job.completed=1
             order by job.job_date,job.customer;""")
         unpaidbills = connection.fetchall() 
+        colseCursor()
         return render_template("unpaid_bills.html",unpaidbills = unpaidbills)   
     else:
         # filter by customer name/id
-        if request.values.get("search") == "search":
-            search = request.form.get("search")
-            connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date,job.total_cost from job 
-                inner join customer on job.customer= customer.customer_id 
-                where job.paid=0 and job.completed=1 and 
-                        (customer.family_name like '%%%%%s%%%%' or customer.first_name like '%%%%%s%%%%' or job.customer="%s") 
-                order by job.job_date,job.customer;"""% (search,search,search) )
-            unpaidbills = connection.fetchall()      
+        # if request.values.get("search") == "search":
+        search = request.form.get("search")
+        connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date,job.total_cost from job 
+            inner join customer on job.customer= customer.customer_id 
+            where job.paid=0 and job.completed=1 and 
+                    (customer.family_name like '%%%%%s%%%%' or customer.first_name like '%%%%%s%%%%' or job.customer="%s") 
+            order by job.job_date,job.customer;"""% (search,search,search) )
+        unpaidbills = connection.fetchall()      
 
         # pay the bills
         if request.values.get("paid") == "paid":
@@ -400,7 +411,7 @@ def unpaidbills():
             where job.paid=0 and job.completed=1
             order by job.job_date,job.customer;""")
             unpaidbills = connection.fetchall() 
-
+        colseCursor()
         return render_template("unpaid_bills.html",unpaidbills = unpaidbills)    
 
 
@@ -422,7 +433,7 @@ def historybills():
 
     # get the date of today
     now = datetime.now().date()
-
+    colseCursor()
     return render_template("billing_history.html",historybills=historybills,customer_id=customer_id,now=now)    
 
 
