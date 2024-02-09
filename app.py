@@ -85,7 +85,7 @@ def addjobs():
 
         session['job_id'] = request.args.get('job_id')
              
-    elif request.method == 'POST':     
+    else:     
         job_id = session.get('job_id')
 
         # get input imformation
@@ -123,8 +123,37 @@ def addjobs():
         
         # add job
         if request.values.get("add") == "add":
-            # add service to the job
-            if service!="Open this select menu" and match_service:
+            # select both service and part
+            if part!="Open this select menu" and service!="Open this select menu" and match_service and match_part:
+                # through service_name get service_id
+                connection.execute("select service_id from service where %s = service_name",(service,))
+                service_id= connection.fetchone()[0]
+
+                # check if the service_id is existed in the job
+                connection.execute("select qty from job_service where %s = service_id and %s = job_id",(service_id,job_id,))
+                check_service= connection.fetchone()
+                if check_service == None: 
+                    connection.execute("insert into job_service value (%s,%s,%s)",(job_detail_list[0][0],service_id,service_qty,))
+                else:
+                    service_qty = int(service_qty)
+                    service_qty = service_qty + check_service[0]
+                    connection.execute("update job_service set qty=%s where service_id=%s",(service_qty,service_id,))
+                # through part_name get part_id
+                connection.execute("select part_id from part where %s = part_name",(part,))
+                part_id= connection.fetchone()[0]
+
+                # check if the part id is existed in the job
+                connection.execute("select qty from job_part where %s = part_id and %s = job_id",(part_id,job_id))
+                check_part= connection.fetchone()
+                if check_part == None:
+                    connection.execute("insert into job_part value (%s,%s,%s)",(job_detail_list[0][0],part_id,part_qty,))
+                else:
+                    part_qty = int(part_qty)
+                    part_qty = part_qty + check_part[0]
+                    connection.execute("update job_part set qty=%s where part_id=%s",(part_qty,part_id,))
+                flash("Add part and service to the job successfully","success")
+            # select only service
+            elif service!="Open this select menu" and match_service and part=="Open this select menu"and not match_part:
                 # through service_name get service_id
                 connection.execute("select service_id from service where %s = service_name",(service,))
                 service_id= connection.fetchone()[0]
@@ -139,16 +168,9 @@ def addjobs():
                     service_qty = service_qty + check_service[0]
                     connection.execute("update job_service set qty=%s where service_id=%s",(service_qty,service_id,))
                 flash("Add service to the job successfully","success")
+            # select only part
+            elif part!="Open this select menu" and match_part and service=="Open this select menu" and not match_service:     
 
-                # selct service again after add jobs
-                connection.execute("""select s.service_name,s.cost,js.qty from job_service js
-                    inner join service s on js.service_id = s.service_id
-                    where js.job_id = %s
-                    order by s.service_name;""", (job_id,) )
-                service_list = connection.fetchall() 
-            
-            # add part to the job
-            elif part!="Open this select menu" and match_part:             
                 # through part_name get part_id
                 connection.execute("select part_id from part where %s = part_name",(part,))
                 part_id= connection.fetchone()[0]
@@ -162,16 +184,21 @@ def addjobs():
                     part_qty = part_qty + check_part[0]
                     connection.execute("update job_part set qty=%s where part_id=%s",(part_qty,part_id,))
                 flash("Add part to the job successfully","success")
-
-                # selct part again after add jobs
-                connection.execute("""select p.part_name,p.cost,jp.qty from job_part jp
-                    inner join part p on jp.part_id = p.part_id
-                    where jp.job_id = %s
-                    order by p.part_name;""", (job_id,) )
-                part_list= connection.fetchall() 
-
             else:
                 flash("Please choose at least one part/service and input the right qty.","danger")
+
+            # selct part again after add jobs
+            connection.execute("""select p.part_name,p.cost,jp.qty from job_part jp
+                inner join part p on jp.part_id = p.part_id
+                where jp.job_id = %s
+                order by p.part_name;""", (job_id,) )
+            part_list= connection.fetchall() 
+            # selct service again after add jobs
+            connection.execute("""select s.service_name,s.cost,js.qty from job_service js
+                inner join service s on js.service_id = s.service_id
+                where js.job_id = %s
+                order by s.service_name;""", (job_id,) )
+            service_list = connection.fetchall() 
 
         # total service cost
         connection.execute("""select sum(js.qty*s.cost) from job_service js
@@ -269,7 +296,7 @@ def addservice():
         elif service != None:
             flash("The service name is already existed. Please input again.","danger")
         elif not match_cost:
-            flash("The cost should be in 0.01~999.99! Please input again.","danger")
+            flash("The cost should be in 0.01~999.99 and keep at most two decimal places. Please input again.","danger")
         # insert into database
         else:
             servicecost = decimal.Decimal(servicecost)
@@ -298,7 +325,7 @@ def addpart():
         elif part != None:
             flash("The part name is already existed. Please input again.","danger")
         elif not match_cost:
-            flash("The cost should be in 0.01~999.99! Please input again.","danger")
+            flash("The cost should be in 0.01~999.99 and keep at most two decimal places.Please input again.","danger")
         # insert into database
         else:
             partcost = decimal.Decimal(partcost)
@@ -368,7 +395,7 @@ def unpaidbills():
             flash("The job is marked as paid.","success")
 
             # after paying the bill, show the unpaid bills again
-            connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date from job 
+            connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date,job.total_cost from job 
             inner join customer on job.customer= customer.customer_id 
             where job.paid=0 and job.completed=1
             order by job.job_date,job.customer;""")
@@ -380,21 +407,23 @@ def unpaidbills():
 @app.route("/historybills",methods = ["GET","POST"])
 def historybills():
     connection = getCursor()
-    # connection.execute("""SELECT c.customer_id,c.first_name,c.family_name,c.email,c.phone, j.job_id,j.job_date,j.total_cost,j.completed,j.paid from customer c
-    #         inner join job j
-    #         on j.customer = c.customer_id 
-	# 		order by c.family_name,c.first_name,j.job_date;""")
-    connection.execute("""SELECT group_concat("ID:",c.customer_id," Name:",ifnull(c.first_name,'-'),c.family_name," Email:",c.email," Phone:",c.phone),
-            group_concat(j.job_id,"/",j.job_date,"/",ifnull(j.total_cost,'-'),"/",j.completed,"/",j.paid) from customer c
-            inner join job j
-            on j.customer = c.customer_id 
-            group by j.job_id
-			order by c.family_name,c.first_name,j.job_date;""")
-
+    connection.execute("""SELECT c.customer_id,c.first_name,c.family_name,c.email,c.phone, j.job_id,j.job_date,j.total_cost,j.completed,j.paid from customer c
+        inner join job j
+        on j.customer = c.customer_id 
+        order by c.family_name,c.first_name,j.job_date;""")
     historybills = connection.fetchall() 
-    
-    print(historybills)
-    return render_template("billing_history.html",historybills=historybills)    
+
+    connection.execute("""select c.customer_id,c.first_name,c.family_name,c.email,c.phone from customer c
+        inner join job j
+        on j.customer = c.customer_id 
+        group by c.customer_id
+        order by c.family_name,c.first_name;""")
+    customer_id = connection.fetchall() 
+
+    # get the date of today
+    now = datetime.now().date()
+
+    return render_template("billing_history.html",historybills=historybills,customer_id=customer_id,now=now)    
 
 
 if __name__ == '__main__':

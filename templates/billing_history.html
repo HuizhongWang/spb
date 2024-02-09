@@ -22,7 +22,7 @@
 <div class="col-10"> 
     <h3>Billing History & Overdue Bills</h3>
     <!-- code to display list of jobs-->
-    <table class="table" table-bordered>
+    <table class="table table-sm" table-bordered>
         <thead>
             <tr>
                 <th>Customer ID</th>
@@ -35,36 +35,47 @@
                 <th>Total Cost</th>
                 <th>Completed</th>
                 <th>Paid</th>
-
             </tr>
         </thead>
         <tbody>
-            {% for bill in historybills %}
-            <!-- <tr>
-                <td>{{bill[0]}}</td>
-                <td>{{bill[1]}}</td>
-                <td>{{bill[2]}}</td>
-                <td>{{bill[3]}}</td>
-                <td>{{bill[4]}}</td>
-                <td>{{bill[5]}}</td>
-                <td>{{bill[6]}}</td>
-                <td>{{bill[7]}}</td>
-                {% if bill[8]== 1 %}
-                    <td>Yes</td>
-                {% else %}
-                    <td>No</td>
-                {% endif %}
-                {% if bill[9]== 1 %}
-                    <td>Yes</td>
-                {% else %}
-                    <td>No</td>
-                {% endif %}
-            </tr> -->
             <tr>
-                <td>{{bill[0]}}</td>
-                <td>{{bill[1].strip("/")}}</td>
-
+            {% for customerid in customer_id %}
+                <td>{{customerid[0]}}</td>
+                <td>{{customerid[1]}}</td>
+                <td>{{customerid[2]}}</td>
+                <td>{{customerid[3]}}</td>
+                <td>{{customerid[4]}}</td>
+            </tr>   
+           
+            {% for bill in historybills %}
+                {% if (now-bill[6]).days > 14 %}
+                <tr class="table-danger">
+                {% else %}
+                </tr>
+                {% endif %}
+                {% if bill[0]== customerid[0]%}
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>              
+                    <td>{{bill[5]}}</td>                    
+                    <td> {{bill[6]}}</td>                   
+                    <td>{{bill[7]}}</td>
+                    {% if bill[8]== 1 %}
+                        <td>Yes</td>
+                    {% else %}
+                        <td>No</td>
+                    {% endif %}
+                    {% if bill[9]== 1 %}
+                        <td>Yes</td>
+                    {% else %}
+                        <td>No</td>
+                    {% endif %}
+                {% endif %}
             </tr>
+            {% endfor %}
+            
             {% endfor %}
         </tbody>
     </table>
