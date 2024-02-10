@@ -292,7 +292,7 @@ def addservice():
         servicename= request.form.get("servicename").strip()
         # check part cost format
         servicecost= str(request.form.get("servicecost")).strip()
-        cost = r'^[1-9]\d{0,2}(\.\d{1,2})?$'
+        cost = r'^(?:0|[1-9]\d{0,2})(?:\.\d{1,2})?$'
         match_cost = re.match(cost,servicecost)
         connection.execute("select service_name from service where service_name= %s",(servicename,))
         service= connection.fetchone()
@@ -322,7 +322,7 @@ def addpart():
         partname= request.form.get("partname").strip()
         # check part cost format
         partcost= str(request.form.get("partcost")).strip()
-        cost = r'^[1-9]\d{0,2}(\.\d{1,2})?$'
+        cost = r'^(?:0|[1-9]\d{0,2})(?:\.\d{1,2})?$'
         match_cost = re.match(cost,partcost)
         connection.execute("select part_name from part where part_name= %s",(partname,))
         part= connection.fetchone()
