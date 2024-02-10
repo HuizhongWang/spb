@@ -188,7 +188,7 @@ def addjobs():
                 flash("Add part to the job successfully","success")
             else:
                 flash("Please choose at least one part/service and input the right qty.","danger")
-
+            
             # selct part again after add jobs
             connection.execute("""select p.part_name,p.cost,jp.qty from job_part jp
                 inner join part p on jp.part_id = p.part_id
@@ -212,12 +212,12 @@ def addjobs():
             inner join part p on jp.part_id = p.part_id 
             where jp.job_id = %s;""",(job_id,))
         part_cost = connection.fetchone()[0]
-        
+        print(part_cost,service_cost)
         if service_cost == None:
             service_cost = 0
-        elif part_cost == None:
+        if part_cost == None:
             part_cost = 0
-        total_cost = part_cost+ service_cost
+        total_cost = part_cost + service_cost
     colseCursor()   
     return render_template("addjobs.html",job_detail_list=job_detail_list,service_list=service_list,part_list=part_list,serviceall=serviceall,partall=partall,total_cost=total_cost) 
 
