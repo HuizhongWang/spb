@@ -390,7 +390,6 @@ def unpaidbills():
         return render_template("unpaid_bills.html",unpaidbills = unpaidbills)   
     else:
         # filter by customer name/id
-        # if request.values.get("search") == "search":
         search = request.form.get("search")
         connection.execute("""SELECT job.job_id,job.customer,customer.first_name,customer.family_name,job.job_date,job.total_cost from job 
             inner join customer on job.customer= customer.customer_id 
