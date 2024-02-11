@@ -7,10 +7,9 @@
 <h3>Add Jobs</h2>
 
 <!--show the job-->
-
 <table class="table" table-bordered id="grid">
     <thead>
-        <tr>
+        <tr class="table-primary">
             <th>Job ID</th>
             <th>Customer ID</th>
             <th>First Name</th>
@@ -60,10 +59,10 @@
 <!--show the service and part detail-->
 <div class="container">
     <div class="row"> 
-        <div class="col">
+        <div class="col-5">
             <table class="table">
                 <thead>
-                <tr>
+                <tr class="table-secondary">
                     <th>Service Name</th>
                     <th>cost</th>
                     <th>qty</th>
@@ -79,11 +78,11 @@
                 {% endfor %}    
             </table>
         </div>
-
-        <div class="col">
+        <div class="col-2"></div>
+        <div class="col-5">
             <table class="table">
                 <thead>
-                <tr>
+                <tr class="table-secondary">
                     <th>Part Name</th>
                     <th>cost</th>
                     <th>qty</th>
