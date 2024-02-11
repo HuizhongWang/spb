@@ -102,10 +102,10 @@
     </div>
 </div>
 <!--add submit-->
-<div class="container">
+<div class="container-fluid">
     <form class="form-horizontal" style="margin-top: 40px;" action="/addjobs" method="POST" id="myForm">
     <div class="row">       
-            <div class="col">
+            <div class="col-3">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Service</label>                 
                     <select class="form-control" selected name="service_name">
@@ -116,13 +116,19 @@
                     </select>         
                 </div>
             </div>
-            <div class="col">
+            <div class="col-2">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">qty</label>
                     <input type="text" class="form-control" placeholder="Service qty" name="service_qty">
                 </div>
             </div>
-            <div class="col">
+            <div class="col-1">
+                    <!-- Button trigger modal -->
+                <div class="form-group" style="text-align: center; padding: 20px;">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
+                </div>
+            </div>
+            <div class="col-3">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Part</label>
                     <select class="form-control" name="part_name">
@@ -133,17 +139,19 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-2">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">qty</label>
                     <input type="text" class="form-control" placeholder="Part qty" name="part_qty">
                 </div>
             </div>
-    </div>    
-        <!-- Button trigger modal -->
-        <div class="form-group" style="text-align: center; padding: 20px;">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
-        </div>
+            <div class="col-1">
+                <!-- Button trigger modal -->
+                <div class="form-group" style="text-align: center; padding: 20px;">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">Submit</button>
+                </div>
+            </div>
+    </div> 
     </form>
 </div>
 
@@ -156,11 +164,30 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Do you want to add the job?
+                Do you want to add the job(service)?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" form="myForm" name="add" value="add">Save changes</button>
+                <button type="submit" class="btn btn-primary" form="myForm" name="add_service" value="add_service">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Job</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do you want to add the job(part)?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="myForm" name="add_part" value="add_part">Save changes</button>
             </div>
         </div>
     </div>

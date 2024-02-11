@@ -123,101 +123,216 @@ def addjobs():
             colseCursor()
             return redirect(url_for('currentjobs'))  
         
-        # add job
-        if request.values.get("add") == "add":
-            # select both service and part
-            if part!="Open this select menu" and service!="Open this select menu" and match_service and match_part:
+        # add job(service)
+        if request.values.get("add_service") == "add_service":
+            if service!="Open this select menu" and match_service:
                 # through service_name get service_id
                 connection.execute("select service_id from service where %s = service_name",(service,))
                 service_id= connection.fetchone()[0]
+                
+                # get the current total cost for checking
+                connection.execute("select total_cost from job where job_id=%s",(job_id,))
+                current_cost = connection.fetchone()[0] 
+                if  current_cost == None:
+                    current_cost = 0
 
                 # check if the service_id is existed in the job
                 connection.execute("select qty from job_service where %s = service_id and %s = job_id",(service_id,job_id,))
-                check_service= connection.fetchone()
+                check_service= connection.fetchone() # current service qty
                 if check_service == None: 
-                    connection.execute("insert into job_service value (%s,%s,%s)",(job_detail_list[0][0],service_id,service_qty,))
+                    connection.execute("select sum(%s*cost) from service where %s=service_id;",(service_qty,service_id,))
+                    service_cost= connection.fetchone()[0]
+                    print(service_cost,current_cost)
+                    if service_cost + current_cost <= 9999.99:
+                        connection.execute("insert into job_service value (%s,%s,%s)",(job_detail_list[0][0],service_id,service_qty,))
+                        flash("Add job successfully","success")
+                        total_cost = service_cost+current_cost
+                        connection.execute("update job set total_cost=%s where job_id=%s",(total_cost,job_id,))
+                    else: 
+                        flash("The total cost of a job should not exceed 9999.99. Please input again.","danger")
                 else:
                     service_qty = int(service_qty)
-                    service_qty = service_qty + check_service[0]
-                    connection.execute("update job_service set qty=%s where service_id=%s",(service_qty,service_id,))
-                # through part_name get part_id
-                connection.execute("select part_id from part where %s = part_name",(part,))
-                part_id= connection.fetchone()[0]
+                    service_qty = service_qty + check_service[0] 
+                    connection.execute("select sum(%s*cost) from service where %s=service_id;",(service_qty,service_id,))
+                    service_cost= connection.fetchone()[0]
+                    if service_cost + current_cost <= 9999.99:
+                        connection.execute("update job_service set qty=%s where service_id=%s",(service_qty,service_id,))
+                        flash("Add job successfully","success")
+                        total_cost = service_cost+current_cost
+                        connection.execute("update job set total_cost=%s where job_id=%s",(total_cost,job_id,))
+                    else: 
+                        flash("The total cost of a job should not exceed 9999.99. Please input again.","danger")
 
-                # check if the part id is existed in the job
-                connection.execute("select qty from job_part where %s = part_id and %s = job_id",(part_id,job_id))
-                check_part= connection.fetchone()
-                if check_part == None:
-                    connection.execute("insert into job_part value (%s,%s,%s)",(job_detail_list[0][0],part_id,part_qty,))
-                else:
-                    part_qty = int(part_qty)
-                    part_qty = part_qty + check_part[0]
-                    connection.execute("update job_part set qty=%s where part_id=%s",(part_qty,part_id,))
-                flash("Add part and service to the job successfully","success")
-            # select only service
-            elif service!="Open this select menu" and match_service and part=="Open this select menu"and not match_part:
-                # through service_name get service_id
-                connection.execute("select service_id from service where %s = service_name",(service,))
-                service_id= connection.fetchone()[0]
+                # selct service again after add jobs
+                connection.execute("""select s.service_name,s.cost,js.qty from job_service js
+                    inner join service s on js.service_id = s.service_id
+                    where js.job_id = %s
+                    order by s.service_name;""", (job_id,) )
+                service_list = connection.fetchall() 
 
-                # check if the service_id is existed in the job
-                connection.execute("select qty from job_service where %s = service_id and %s = job_id",(service_id,job_id,))
-                check_service= connection.fetchone()
-                if check_service == None: 
-                    connection.execute("insert into job_service value (%s,%s,%s)",(job_detail_list[0][0],service_id,service_qty,))
-                else:
-                    service_qty = int(service_qty)
-                    service_qty = service_qty + check_service[0]
-                    connection.execute("update job_service set qty=%s where service_id=%s",(service_qty,service_id,))
-                flash("Add service to the job successfully","success")
-            # select only part
-            elif part!="Open this select menu" and match_part and service=="Open this select menu" and not match_service:     
-
-                # through part_name get part_id
-                connection.execute("select part_id from part where %s = part_name",(part,))
-                part_id= connection.fetchone()[0]
-                # check if the part id is existed in the job
-                connection.execute("select qty from job_part where %s = part_id and %s = job_id",(part_id,job_id))
-                check_part= connection.fetchone()
-                if check_part == None:
-                    connection.execute("insert into job_part value (%s,%s,%s)",(job_detail_list[0][0],part_id,part_qty,))
-                else:
-                    part_qty = int(part_qty)
-                    part_qty = part_qty + check_part[0]
-                    connection.execute("update job_part set qty=%s where part_id=%s",(part_qty,part_id,))
-                flash("Add part to the job successfully","success")
             else:
-                flash("Please choose at least one part/service and input the right qty.","danger")
-            
-            # selct part again after add jobs
-            connection.execute("""select p.part_name,p.cost,jp.qty from job_part jp
-                inner join part p on jp.part_id = p.part_id
-                where jp.job_id = %s
-                order by p.part_name;""", (job_id,) )
-            part_list= connection.fetchall() 
-            # selct service again after add jobs
-            connection.execute("""select s.service_name,s.cost,js.qty from job_service js
-                inner join service s on js.service_id = s.service_id
-                where js.job_id = %s
-                order by s.service_name;""", (job_id,) )
-            service_list = connection.fetchall() 
+                flash("Please select the service and input the right qty.","danger")
 
-        # total service cost
-        connection.execute("""select sum(js.qty*s.cost) from job_service js
-        inner join service s on js.service_id = s.service_id 
-        where js.job_id = %s;""",(job_id,))
-        service_cost = connection.fetchone()[0]
-        # total part cost
-        connection.execute("""select sum(jp.qty*p.cost) from job_part jp
-            inner join part p on jp.part_id = p.part_id 
-            where jp.job_id = %s;""",(job_id,))
-        part_cost = connection.fetchone()[0]
-        print(part_cost,service_cost)
-        if service_cost == None:
-            service_cost = 0
-        if part_cost == None:
-            part_cost = 0
-        total_cost = part_cost + service_cost
+        # add job(part)
+        if request.values.get("add_part") == "add_part":
+            if part!="Open this select menu" and match_part:
+                # through part_name get part_id
+                connection.execute("select part_id from part where %s = part_name",(part,))
+                part_id= connection.fetchone()[0]
+
+                # get the current total cost for checking
+                connection.execute("select total_cost from job where job_id=%s",(job_id,))
+                current_cost = connection.fetchone()[0]           
+                if  current_cost == None:
+                    current_cost = 0
+
+                # check if the part id is existed in the job
+                connection.execute("select qty from job_part where %s = part_id and %s = job_id",(part_id,job_id))
+                check_part= connection.fetchone()
+                if check_part == None:
+                    connection.execute("select sum(%s* cost) from part where %s=part_id;",(part_qty,part_id,))
+                    part_cost= connection.fetchone()[0]
+                    part_cost = decimal.Decimal(part_cost)
+                    print("==================",part_cost,type(part_cost),current_cost,type(current_cost))
+                    if current_cost + part_cost <= 9999.99:                   
+                        connection.execute("insert into job_part value (%s,%s,%s)",(job_detail_list[0][0],part_id,part_qty,))
+                        flash("Add job successfully","success")
+                        total_cost = part_cost+current_cost
+                        connection.execute("update job set total_cost=%s where job_id=%s",(total_cost,job_id,))
+                    else: 
+                        flash("The total cost of a job should not exceed 9999.99. Please input again.","danger")
+                else:
+                    part_qty = int(part_qty)
+                    part_qty = part_qty + check_part[0]
+                    connection.execute("select sum(%s*cost) from part where %s=part_id;",(part_qty,part_id,))
+                    part_cost= connection.fetchone()[0]
+                
+                    if part_cost+current_cost <= 9999.99:
+                        connection.execute("update job_part set qty=%s where part_id=%s",(part_qty,part_id,))
+                        flash("Add job successfully","success")
+                        total_cost = part_cost+current_cost
+                        connection.execute("update job set total_cost=%s where job_id=%s",(total_cost,job_id,))
+                    else: 
+                        flash("The total cost of a job should not exceed 9999.99. Please input again.","danger")
+
+                #selct part again after add jobs
+                connection.execute("""select p.part_name,p.cost,jp.qty from job_part jp
+                    inner join part p on jp.part_id = p.part_id
+                    where jp.job_id = %s
+                    order by p.part_name;""", (job_id,) )
+                part_list= connection.fetchall() 
+
+            else:
+                flash("Please select the service and input the right qty.","danger")
+
+        # get total cost again
+        connection.execute("select total_cost from job where job_id=%s",(job_id,))
+        total_cost = connection.fetchone()[0] 
+        
+
+        #     # select both service and part
+        #     if part!="Open this select menu" and service!="Open this select menu" and match_service and match_part:
+        #         # through service_name get service_id
+        #         connection.execute("select service_id from service where %s = service_name",(service,))
+        #         service_id= connection.fetchone()[0]
+
+        #         # check if the service_id is existed in the job
+        #         connection.execute("select js.qty,s.cost from job_service js inner join service s on js.service_id=s.service_id where %s = service_id and %s = job_id",(service_id,job_id,))
+        #         check_service= connection.fetchone()
+        #         if check_service == None: 
+        #             connection.execute("select sum(js.qty*s.cost) from job_service js inner join service s on js.service_id=s.service_id;")
+        #             check_cost= connection.fetchone()[0]
+        #             if check_cost< 9999.99:
+        #                 connection.execute("insert into job_service value (%s,%s,%s)",(job_detail_list[0][0],service_id,service_qty,))
+        #             else: 
+        #                 flash("The total cost of a job should not exceed 9999.99.")
+        #         else:
+        #             service_qty = int(service_qty)
+        #             service_qty = service_qty + check_service[0]
+        #             connection.execute("select sum(%s*s.cost) from job_service js inner join service s on js.service_id=s.service_id;",(service_qty,))
+        #             check_cost= connection.fetchone()[0]
+        #             if check_cost< 9999.99:
+        #                 connection.execute("update job_service set qty=%s where service_id=%s",(service_qty,service_id,))
+        #             else: 
+        #                 flash("The total cost of a job should not exceed 9999.99.")
+        #         # through part_name get part_id
+        #         connection.execute("select part_id from part where %s = part_name",(part,))
+        #         part_id= connection.fetchone()[0]
+
+        #         # check if the part id is existed in the job
+        #         connection.execute("select qty from job_part where %s = part_id and %s = job_id",(part_id,job_id))
+        #         check_part= connection.fetchone()
+        #         if check_part == None:
+        #             connection.execute("insert into job_part value (%s,%s,%s)",(job_detail_list[0][0],part_id,part_qty,))
+        #         else:
+        #             part_qty = int(part_qty)
+        #             part_qty = part_qty + check_part[0]
+        #             connection.execute("update job_part set qty=%s where part_id=%s",(part_qty,part_id,))
+        #         flash("Add part and service to the job successfully","success")
+        #     # select only service
+        #     elif service!="Open this select menu" and match_service and part=="Open this select menu"and not match_part:
+        #         # through service_name get service_id
+        #         connection.execute("select service_id from service where %s = service_name",(service,))
+        #         service_id= connection.fetchone()[0]
+
+        #         # check if the service_id is existed in the job
+        #         connection.execute("select qty from job_service where %s = service_id and %s = job_id",(service_id,job_id,))
+        #         check_service= connection.fetchone()
+        #         if check_service == None: 
+        #             connection.execute("insert into job_service value (%s,%s,%s)",(job_detail_list[0][0],service_id,service_qty,))
+        #         else:
+        #             service_qty = int(service_qty)
+        #             service_qty = service_qty + check_service[0]
+        #             connection.execute("update job_service set qty=%s where service_id=%s",(service_qty,service_id,))
+        #         flash("Add service to the job successfully","success")
+        #     # select only part
+        #     elif part!="Open this select menu" and match_part and service=="Open this select menu" and not match_service:     
+
+        #         # through part_name get part_id
+        #         connection.execute("select part_id from part where %s = part_name",(part,))
+        #         part_id= connection.fetchone()[0]
+        #         # check if the part id is existed in the job
+        #         connection.execute("select qty from job_part where %s = part_id and %s = job_id",(part_id,job_id))
+        #         check_part= connection.fetchone()
+        #         if check_part == None:
+        #             connection.execute("insert into job_part value (%s,%s,%s)",(job_detail_list[0][0],part_id,part_qty,))
+        #         else:
+        #             part_qty = int(part_qty)
+        #             part_qty = part_qty + check_part[0]
+        #             connection.execute("update job_part set qty=%s where part_id=%s",(part_qty,part_id,))
+        #         flash("Add part to the job successfully","success")
+        #     else:
+        #         flash("Please choose at least one part/service and input the right qty.","danger")
+            
+        #     # selct part again after add jobs
+        #     connection.execute("""select p.part_name,p.cost,jp.qty from job_part jp
+        #         inner join part p on jp.part_id = p.part_id
+        #         where jp.job_id = %s
+        #         order by p.part_name;""", (job_id,) )
+        #     part_list= connection.fetchall() 
+        #     # selct service again after add jobs
+        #     connection.execute("""select s.service_name,s.cost,js.qty from job_service js
+        #         inner join service s on js.service_id = s.service_id
+        #         where js.job_id = %s
+        #         order by s.service_name;""", (job_id,) )
+        #     service_list = connection.fetchall() 
+
+        # # total service cost
+        # connection.execute("""select sum(js.qty*s.cost) from job_service js
+        # inner join service s on js.service_id = s.service_id 
+        # where js.job_id = %s;""",(job_id,))
+        # service_cost = connection.fetchone()[0]
+        # # total part cost
+        # connection.execute("""select sum(jp.qty*p.cost) from job_part jp
+        #     inner join part p on jp.part_id = p.part_id 
+        #     where jp.job_id = %s;""",(job_id,))
+        # part_cost = connection.fetchone()[0]
+        # print(part_cost,service_cost)
+        # if service_cost == None:
+        #     service_cost = 0
+        # if part_cost == None:
+        #     part_cost = 0
+        # total_cost = part_cost + service_cost
     colseCursor()   
     return render_template("addjobs.html",job_detail_list=job_detail_list,service_list=service_list,part_list=part_list,serviceall=serviceall,partall=partall,total_cost=total_cost) 
 
