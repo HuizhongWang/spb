@@ -2,8 +2,8 @@
 spb ID: 1159528
 ### 1. Web Application Structure
 
-- The route "/" serves as the homepage, but it actually displays the "/currentjobs" page.
-- For technicians, their homepage is also the "/currentjobs" route (linked to currentjoblist.html), where they can view current jobs and navigate to the "/addjobs" route (linked to addjob.html) to add new jobs.
+1. The route "/" serves as the homepage, but it actually displays the "/currentjobs" page.
+2. For technicians, their homepage is also the "/currentjobs" route (linked to currentjoblist.html), where they can view current jobs and navigate to the "/addjobs" route (linked to addjob.html) to add new jobs.
 - The administrator's homepage is "/admin", from which they can access several functional pages: 
   - "/customerlist" (linked to customer_list.html) to view customer lists
   - "/customersearch" (linked to customer_search.html) to search for customers
@@ -13,13 +13,13 @@ spb ID: 1159528
   - "/schedule" (linked to schedule_job) to schedule jobs
   - "/unpaidbills" (linked to unpaid_bills.html) to confirm unpaid bills
   - "/historybills" (linked to billing_history.html) to display all billing history
-- Additionally, there is a base.html serving as a parent template, containing common elements for all pages. The app.py file also includes two functions, getCursor() and closeCursor(), to facilitate database management within routes.
+3. Additionally, there is a base.html serving as a parent template, containing common elements for all pages. The app.py file also includes two functions, getCursor() and closeCursor(), to facilitate database management within routes.
 
 ### 2. Design Decisions
 
 1. Due to the numerous functionalities available to the administrator, a functional list is provided on each of their pages. This allows for easy navigation to other functionalities within the current page, eliminating the need to return to the administrator's homepage for further access.
 2. The "History Bills" page displays all jobs, where the "completed" and "paid" fields in the database are marked using the numbers 1 and 0. In the HTML page for user display, these are translated to "yes" and "no" respectively using conditional statements.
-3. During the addition of services/parts, data validation is required. This includes checking if the part/service already exists. Additionally, since the price for services is limited to a maximum of three digits in the database, frontend validation is necessary to enforce this constraint on prices.
+3. During the addition of services/parts, data validation is required. This includes checking if the part/service already exists. Additionally, since the price for services/part is limited to a maximum of three digits in the database, and the total cost is limited to a maximum of four digits in the database frontend validation is necessary to enforce this constraint on prices.
 4. After clicking the "Complete" button on the "Add Jobs" page, modifications cannot be made. Therefore, clicking the button will directly redirect to the "Current Jobs" page.
 
 ### 3. Database Questions

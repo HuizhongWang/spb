@@ -23,9 +23,11 @@
     <h3>Unpaid bills & Pay Bills</h3>
     <!-- code to display list of unpaidbills-->
     <div class="container">
-    <form class="navbar-form navbar-right" style="margin-top: 40px;" method="post" action="{{ url_for('unpaidbills')}}" id="myForm">
+    <!-- <form class="navbar-form navbar-right" style="margin-top: 40px;" method="post" action="{{ url_for('unpaidbills')}}" id="myForm"> -->
+    <form class="navbar-form navbar-right" style="margin-top: 40px;" method="post" action="{{ url_for('unpaidbills')}}">
         <input class="form-control mr-sm-10" type="search" placeholder="customer name/ID" aria-label="Search" name="search">
         <button class="btn btn-outline-success my-2 my-sm-10" type="btn-primary" name="search" value="search">Search</button>
+    </form>
         {% if unpaidbills == [] %}
         <table class="table" table-bordered>
             <thead>
@@ -59,35 +61,46 @@
             <tbody>
                 {% for bills in unpaidbills %}
                 <tr>
-                    {% for field in bills %}
+                    <!-- {% for field in bills %}
                     <td>{{field}}</td>
-                    {% endfor %}
-                    <input type="hidden" name="markpaid" value="{{bills.0}}">
-                    <td><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Paid</button></td>
+                    {% endfor %} -->
+                    <td>{{bills[0]}}</td>
+                    <td>{{bills[1]}}</td>
+                    <td>{{bills[2]}}</td>
+                    <td>{{bills[3]}}</td>
+                    <td>{{bills[4]}}</td>
+                    <td>{{bills[5]}}</td> 
+                    <td>
+                        <form action="/unpaidbills" method="post" id="myForm{{bills[0]}}">
+                            <input type="hidden" name="markpaid" value="{{bills[0]}}">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal{{bills[0]}}">Paid</button>
+                        </form>
+                    </td>
                 </tr>
+                    <!-- Modal -->
+                <div class="modal fade" id="exampleModal{{bills[0]}}" tabindex="-1" aria-labelledby="exampleModalLabel"aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Pay the bill</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Do you want to mark the bill as paid?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" form="myForm{{bills[0]}}" name="paid" value="paid">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
             </tbody>
         </table>
         {% endif %}
     </form>    
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Pay the bill</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Do you want to mark the bill as paid?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" form="myForm" name="paid" value="paid">Save changes</button>
-            </div>
-        </div>
-    </div>
-    </div>
+
     
     </div>
 </div>

@@ -413,8 +413,8 @@ def unpaidbills():
 
         # pay the bills
         if request.values.get("paid") == "paid":
-            paid = request.form.get("markpaid")
-            connection.execute("update job set paid=1 where job_id=%s",(paid,))
+            markpaid = request.form.get("markpaid")
+            connection.execute("update job set paid=1 where job_id=%s",(markpaid,))
             flash("The job is marked as paid.","success")
 
             # after paying the bill, show the unpaid bills again
