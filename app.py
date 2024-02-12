@@ -54,7 +54,6 @@ def currentjobs():
 def addjobs():
     connection = getCursor()
     global job_detail_list,service_list,part_list,serviceall,partall
-    total_cost = ""
     job_id = request.args.get('job_id') 
     if request.method == 'GET':     
         # show job detail
@@ -105,23 +104,10 @@ def addjobs():
         # complete the job
         if request.values.get("complete") == "complete":           
             connection.execute("update job set completed=1 where job_id=%s",(job_id,))
-            # total service cost
-            connection.execute("""select sum(js.qty*s.cost) from job_service js
-                inner join service s on js.service_id = s.service_id 
-                where js.job_id = %s;""",(job_id,))
-            service_cost = connection.fetchone()[0]
-            # total part cost
-            connection.execute("""select sum(jp.qty*p.cost) from job_part jp
-                inner join part p on jp.part_id = p.part_id 
-                where jp.job_id = %s;""",(job_id,))
-            part_cost = connection.fetchone()[0]
-            # calculate total cost
-            if service_cost == None:
-                service_cost = 0
-            elif part_cost == None:
-                part_cost = 0
-            total_cost = part_cost+ service_cost
-            connection.execute("update job set total_cost=%s where job_id=%s;",(total_cost,job_id,))
+            connection.execute("select total_cost from job where job_id=%s;",(job_id,))
+            total_cost = connection.fetchone()[0]
+            if total_cost == None:
+                total_cost = 0
 
             flash("The job is marked as completed.","success")
             colseCursor()
